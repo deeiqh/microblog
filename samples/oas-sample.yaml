@@ -1,0 +1,147 @@
+openapi: "3.0.0"
+info:
+  title: Shopping API
+  version: "1.0"
+servers:
+  - url: "/api"
+tags:
+  - name: Products
+    description: The products
+components:
+  schemas:
+    product:
+      type: object
+      description: A product
+      required:
+        - reference
+        - name
+        - price
+        - supplier
+      properties:
+        reference:
+          type: string
+          description: Unique ID identifying a product
+          example: ISBN-9781617295102
+        name:
+          type: string
+          example: The Design of Web APIs
+        price:
+          description: Price in USD
+          type: number
+          example: 44.99
+        description:
+          type: string
+          example: A book about API design
+        supplier:
+          type: object
+          description: Product's supplier
+          required:
+            - reference
+            - name
+          properties:
+            reference:
+              type: string
+              description: Supplier's unique identifier
+              example: MANPUB
+            name:
+              type: string
+              example: Manning Publications
+  parameters:
+    productId:
+      name: productId
+      in: path
+      required: true
+      description: Product's reference
+      schema:
+        type: string
+paths:
+  /products:
+    description: The products catalog
+    get:
+      tags:
+        - "Products"
+      summary: Search for products
+      description: |
+        Search for products in catalog
+        using a free query parameter
+      parameters:
+        - name: free-query
+          description: |
+            A product's name, reference, or
+            partial description
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: |
+            Products matching free query
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Array of products
+                items:
+                  $ref: "#/components/schemas/product"
+    post:
+      summary: Add product
+      description: |
+        Add product (described in product info 
+        parameter) to catalog
+      requestBody:
+        description: Product's information
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - price
+                - supplierReference
+              properties:
+                name:
+                  type: string
+                  example: The Design of Web APIs
+                price:
+                  type: number
+                  example: 44.99
+                description:
+                  type: string
+                supplierReference:
+                  type: string
+      responses:
+        "200":
+          description: |
+            Product added to catalog
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/product"
+  /products/{productId}:
+    description: A product
+    parameters:
+      - $ref: "#/components/parameters/productId"
+    # delete:
+    #   summary: Delete a product
+    # put:
+    # patch:
+# {
+#   "source": "firstname",
+#   "path": "$.owners[0].firstname",
+#   "type": "MISSING_MANDATORY_PROPERTY",
+#   "message": "Firstname is mandatory"
+# }
+
+# {
+#   "message": "Invalid request",
+#   "errors": [
+#     {
+#     "source": "source",
+#     "type": "MISSING_MANDATORY_PROPERTY",
+#     "message": "Source is mandatory"},
+#     {
+#     "source": "destination",
+#     "type": "MISSING_MANDATORY_PROPERTY"},
+#     "message": "Destination is mandatory"}
+#   ]
+# }

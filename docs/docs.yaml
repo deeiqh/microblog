@@ -1,0 +1,477 @@
+openapi: "3.0.0"
+info:
+  title: Microblog
+  version: "1.0.0"
+servers:
+  - url: "/api"
+tags:
+  - name: "general"
+    description: "Monitoring routes for the server"
+  - name: "auth"
+  - name: "accounts"
+  - name: "posts"
+  - name: "comments"
+paths:
+  /status:
+    get:
+      tags:
+        - "general"
+      responses:
+        "200":
+          description: "Server's date"
+          content:
+            application/json:
+              schema:
+                properties:
+                  time:
+                    type: "string"
+
+  /auth/signup:
+    post:
+      tags:
+        - "auth"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+              properties:
+                firstName:
+                  type: "string"
+                lastName:
+                  type: "string"
+                email:
+                  type: "string"
+                password:
+                  type: "string"
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Signup"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/signin:
+    post:
+      tags:
+        - "auth"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: "string"
+                password:
+                  type: "string"
+      responses:
+        "200":
+          description: "Ok"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Signin"
+        "401":
+          description: "Forbidden"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "400":
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /auth/signout:
+    post:
+      tags:
+        - "auth"
+      responses:
+        "204":
+          description: "Empty body"
+      security:
+        - api_key: []
+
+  /accounts/confirm-account:
+    post:
+      tags:
+        - "accounts"
+      parameters:
+        - name: "token"
+          in: "query"
+          schema:
+            type: "string"
+      responses:
+        "204":
+          description: "Empty body"
+        "422":
+          description: "Unprocessable Token"
+
+  /accounts/: {}
+  /accounts/posts:
+    get:
+      summary: "Retrieves all posts from account"
+      tags:
+        - "posts"
+      responses:
+        "200":
+          description: "All posts from account"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Post"
+      security:
+        - api_key: []
+  /accounts/comments:
+    get:
+      summary: "Retrieves all comments from account"
+      tags:
+        - "comments"
+      responses:
+        "200":
+          description: "All comments from account"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Comment"
+      security:
+        - api_key: []
+
+  /posts:
+    get:
+      summary: "Retrieves all posts"
+      tags:
+        - "posts"
+      responses:
+        "200":
+          description: "All posts"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Post"
+    post:
+      summary: "Creates a new post"
+      tags:
+        - "posts"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "title"
+                - "content"
+              properties:
+                title:
+                  type: "string"
+                category:
+                  type: "string"
+                content:
+                  type: "string"
+                draft:
+                  type: "boolean"
+      responses:
+        "201":
+          description: "New post created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+      security:
+        - api_key: []
+  /posts/{postId}:
+    get:
+      summary: "Retrieves a post"
+      tags:
+        - "posts"
+      responses:
+        "200":
+          description: "A post"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+    patch:
+      summary: "Update post"
+      tags:
+        - "posts"
+      parameters:
+        - name: "postId"
+          in: "path"
+          description: "The post's uuid"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                title:
+                  type: "string"
+                category:
+                  type: "string"
+                content:
+                  type: "string"
+                draft:
+                  type: "boolean"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+      security:
+        - api_key: []
+    delete:
+      summary: "Delete post"
+      tags:
+        - "posts"
+      parameters:
+        - name: "postId"
+          in: "path"
+          description: "The post's uuid"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+      security:
+        - api_key: []
+  /posts/{postId}/comments:
+    get:
+      summary: "Retrieves post's comments"
+      tags:
+        - "comments"
+      responses:
+        "200":
+          description: "Comments"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Comment"
+    post:
+      summary: "Creates a new comment"
+      tags:
+        - "comments"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "content"
+              properties:
+                content:
+                  type: "string"
+                draft:
+                  type: "boolean"
+      responses:
+        "201":
+          description: "New post created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+      security:
+        - api_key: []
+
+  /comments:
+    get:
+      summary: "Retrieves all comments"
+      tags:
+        - "comments"
+      responses:
+        "200":
+          description: "All comments"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Comment"
+  /comments/{commentId}:
+    get:
+      summary: "Retrieves a comment"
+      tags:
+        - "comments"
+      responses:
+        "200":
+          description: "A comment"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+    patch:
+      summary: "Update comment"
+      tags:
+        - "comments"
+      parameters:
+        - name: "commentId"
+          in: "path"
+          description: "The comment's uuid"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                content:
+                  type: "string"
+                draft:
+                  type: "boolean"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+      security:
+        - api_key: []
+    delete:
+      summary: "Delete comment"
+      tags:
+        - "comments"
+      parameters:
+        - name: "commentId"
+          in: "path"
+          description: "The comment's uuid"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+      security:
+        - api_key: []
+
+components:
+  schemas:
+    Signup:
+      type: "object"
+      properties:
+        accessToken:
+          type: "string"
+        exp:
+          type: "integer"
+    Signin:
+      type: "object"
+      properties:
+        accessToken:
+          type: "string"
+        exp:
+          type: "integer"
+    Error:
+      type: "object"
+      properties:
+        statusCode:
+          type: "integer"
+        message:
+          type: "string"
+        errors:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              property:
+                type: "string"
+              constraint:
+                type: "array"
+                items:
+                  type: "string"
+    Post:
+      type: "object"
+      properties:
+        uuid:
+          type: "string"
+        title:
+          type: "string"
+        author:
+          $ref: "#/components/schemas/Account"
+        category:
+          type: "string"
+        content:
+          type: "string"
+        draft:
+          type: "boolean"
+        likes:
+          type: "integer"
+        comments:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Comment"
+        createdAt:
+          type: "string"
+    Account:
+      type: "object"
+      properties:
+        uuid:
+          type: "string"
+        firstName:
+          type: "string"
+        lastName:
+          type: "string"
+        email:
+          type: "string"
+        createdAt:
+          type: "string"
+    Comment:
+      type: "object"
+      properties:
+        uuid:
+          type: "string"
+        author:
+          $ref: "#/components/schemas/Account"
+        content:
+          type: "string"
+        draft:
+          type: "boolean"
+        likes:
+          type: "integer"
+        createdAt:
+          type: "string"
+  securitySchemes:
+    api_key:
+      type: "apiKey"
+      name: "authorization"
+      in: "header"
+      description: "Bearer <YOUR_TOKEN>"

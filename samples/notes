@@ -1,0 +1,24 @@
+general
+    /status (servers date) get
+
+auth
+    /auth/login post
+    /auth/logout post
+
+users
+    /users/me get patch
+    /users/confirm-account post
+
+admins (read admins)
+    /users get
+    /users/{uuid} get
+    /admins/me get patch
+
+admins-master (write admins)
+    /users post
+    /users/{uuid} get patch delete
+    /admins post(create admin) get
+    /admins/{uuid} get delete patch
+
+-------
+
