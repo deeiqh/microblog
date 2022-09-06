@@ -123,10 +123,57 @@ paths:
         "422":
           description: "Unprocessable Token"
 
-  /accounts/: {}
-  /accounts/posts:
+  /accounts/me:
     get:
-      summary: "Retrieves all posts from account"
+      summary: "Retrieve own account profile"
+      tags:
+        - "accounts"
+      responses:
+        "200":
+          description: "Account"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+      security:
+        - api_key: []
+    patch:
+      summary: "Update own profile"
+      tags:
+        - "accounts"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                firstName:
+                  type: "string"
+                lastName:
+                  type: "string"
+                email:
+                  type: "string"
+                password:
+                  type: "string"
+                public:
+                  type: "object"
+                  properties:
+                    email:
+                      type: "boolean"
+                    name:
+                      type: "boolean"
+      responses:
+        "200":
+          description: "Updated profile"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+      security:
+        - api_key: []
+  /accounts/me/posts:
+    get:
+      summary: "Retrieves all posts from own account"
       tags:
         - "posts"
       responses:
@@ -137,12 +184,12 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Post"
+                  $ref: "#/components/schemas/PostWithoutAuthor"
       security:
         - api_key: []
-  /accounts/comments:
+  /accounts/me/comments:
     get:
-      summary: "Retrieves all comments from account"
+      summary: "Retrieves all comments from own account"
       tags:
         - "comments"
       responses:
@@ -153,9 +200,73 @@ paths:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Comment"
+                  $ref: "#/components/schemas/CommentWithoutAuthor"
       security:
         - api_key: []
+  /accounts/{accountId}:
+    get:
+      summary: "Retrieve account profile"
+      tags:
+        - "accounts"
+      parameters:
+        - $ref: "#/components/parameters/accountId"
+      responses:
+        "200":
+          description: "Account"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "404":
+          description: "Account not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /accounts/{accountId}/posts:
+    get:
+      summary: "Retrieves all posts from account"
+      tags:
+        - "posts"
+      parameters:
+        - $ref: "#/components/parameters/accountId"
+      responses:
+        "200":
+          description: "All posts from account"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/PostWithoutAuthor"
+        "404":
+          description: "Account not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /accounts/{accountId}/comments:
+    get:
+      summary: "Retrieves all comments from account"
+      tags:
+        - "comments"
+      parameters:
+        - $ref: "#/components/parameters/accountId"
+      responses:
+        "200":
+          description: "All comments from account"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/CommentWithoutAuthor"
+        "404":
+          description: "Account not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /posts:
     get:
@@ -192,6 +303,8 @@ paths:
                   type: "string"
                 draft:
                   type: "boolean"
+                like:
+                  type: "boolean"
       responses:
         "201":
           description: "New post created"
@@ -206,6 +319,8 @@ paths:
       summary: "Retrieves a post"
       tags:
         - "posts"
+      parameters:
+        - $ref: "#/components/parameters/postId"
       responses:
         "200":
           description: "A post"
@@ -213,17 +328,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Post"
+        "404":
+          description: "Post not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     patch:
       summary: "Update post"
       tags:
         - "posts"
       parameters:
-        - name: "postId"
-          in: "path"
-          description: "The post's uuid"
-          required: true
-          schema:
-            type: "string"
+        - $ref: "#/components/parameters/postId"
       requestBody:
         content:
           application/json:
@@ -238,9 +354,11 @@ paths:
                   type: "string"
                 draft:
                   type: "boolean"
+                like:
+                  type: "boolean"
       responses:
         "200":
-          description: ""
+          description: "Updated post"
           content:
             application/json:
               schema:
@@ -248,30 +366,47 @@ paths:
       security:
         - api_key: []
     delete:
-      summary: "Delete post"
+      summary: "Delete own post"
       tags:
         - "posts"
       parameters:
-        - name: "postId"
-          in: "path"
-          description: "The post's uuid"
-          required: true
-          schema:
-            type: "string"
+        - $ref: "#/components/parameters/postId"
       responses:
         "200":
-          description: ""
+          description: "Deleted post"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Post"
       security:
         - api_key: []
+  /posts/{postId}/likes:
+    get:
+      summary: "Accounts that gave like to post"
+      tags:
+        - "posts"
+      responses:
+        "200":
+          description: "Accounts"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Account"
+        "404":
+          description: "Post not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /posts/{postId}/comments:
     get:
       summary: "Retrieves post's comments"
       tags:
         - "comments"
+      parameters:
+        - $ref: "#/components/parameters/postId"
       responses:
         "200":
           description: "Comments"
@@ -281,10 +416,18 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/Comment"
+        "404":
+          description: "Post not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     post:
       summary: "Creates a new comment"
       tags:
         - "comments"
+      parameters:
+        - $ref: "#/components/parameters/postId"
       requestBody:
         content:
           application/json:
@@ -297,13 +440,15 @@ paths:
                   type: "string"
                 draft:
                   type: "boolean"
+                like:
+                  type: "boolean"
       responses:
         "201":
-          description: "New post created"
+          description: "New comment created"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Post"
+                $ref: "#/components/schemas/Comment"
       security:
         - api_key: []
 
@@ -326,6 +471,8 @@ paths:
       summary: "Retrieves a comment"
       tags:
         - "comments"
+      parameters:
+        - $ref: "#/components/parameters/commentId"
       responses:
         "200":
           description: "A comment"
@@ -333,17 +480,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Comment"
+        "404":
+          description: "Comment not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
     patch:
       summary: "Update comment"
       tags:
         - "comments"
       parameters:
-        - name: "commentId"
-          in: "path"
-          description: "The comment's uuid"
-          required: true
-          schema:
-            type: "string"
+        - $ref: "#/components/parameters/commentId"
       requestBody:
         content:
           application/json:
@@ -354,9 +502,11 @@ paths:
                   type: "string"
                 draft:
                   type: "boolean"
+                like:
+                  type: "boolean"
       responses:
         "200":
-          description: ""
+          description: "Updated comment"
           content:
             application/json:
               schema:
@@ -364,25 +514,42 @@ paths:
       security:
         - api_key: []
     delete:
-      summary: "Delete comment"
+      summary: "Delete own comment"
       tags:
         - "comments"
       parameters:
-        - name: "commentId"
-          in: "path"
-          description: "The comment's uuid"
-          required: true
-          schema:
-            type: "string"
+        - $ref: "#/components/parameters/commentId"
       responses:
         "200":
-          description: ""
+          description: "Deleted comment"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Comment"
       security:
         - api_key: []
+  /comments/{commentId}/likes:
+    get:
+      summary: "Accounts that gave like to comment"
+      tags:
+        - "comments"
+      parameters:
+        - $ref: "#/components/parameters/commentId"
+      responses:
+        "200":
+          description: "Accounts"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Account"
+        "404":
+          description: "Comment not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
 components:
   schemas:
@@ -418,29 +585,6 @@ components:
                 type: "array"
                 items:
                   type: "string"
-    Post:
-      type: "object"
-      properties:
-        uuid:
-          type: "string"
-        title:
-          type: "string"
-        author:
-          $ref: "#/components/schemas/Account"
-        category:
-          type: "string"
-        content:
-          type: "string"
-        draft:
-          type: "boolean"
-        likes:
-          type: "integer"
-        comments:
-          type: "array"
-          items:
-            $ref: "#/components/schemas/Comment"
-        createdAt:
-          type: "string"
     Account:
       type: "object"
       properties:
@@ -452,23 +596,74 @@ components:
           type: "string"
         email:
           type: "string"
-        createdAt:
-          type: "string"
-    Comment:
+    PostWithoutAuthor:
       type: "object"
       properties:
         uuid:
           type: "string"
-        author:
-          $ref: "#/components/schemas/Account"
+        title:
+          type: "string"
+        category:
+          type: "string"
         content:
           type: "string"
-        draft:
-          type: "boolean"
+        likes:
+          type: "integer"
+        comments:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Comment"
+        createdAt:
+          type: "string"
+    Post:
+      allOf:
+        - $ref: "#/components/schemas/PostWithoutAuthor"
+        - type: "object"
+          properties:
+            author:
+              $ref: "#/components/schemas/Account"
+    CommentWithoutAuthor:
+      type: "object"
+      properties:
+        uuid:
+          type: "string"
+        content:
+          type: "string"
         likes:
           type: "integer"
         createdAt:
           type: "string"
+    Comment:
+      allOf:
+        - $ref: "#/components/schemas/CommentWithoutAuthor"
+        - type: "object"
+          properties:
+            author:
+              $ref: "#/components/schemas/Account"
+
+  parameters:
+    postId:
+      name: "postId"
+      in: "path"
+      description: "The post's uuid"
+      required: true
+      schema:
+        type: "string"
+    commentId:
+      name: "commentId"
+      in: "path"
+      description: "The comment's uuid"
+      required: true
+      schema:
+        type: "string"
+    accountId:
+      name: "accountId"
+      in: "path"
+      description: "The account's uuid"
+      required: true
+      schema:
+        type: "string"
+
   securitySchemes:
     api_key:
       type: "apiKey"
