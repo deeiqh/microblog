@@ -2,14 +2,13 @@
   "name": "microblog",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "dev": "nodemon --ignore dist --exec npm restart",
+    "dev": "nodemon --watch src -e ts --ignore dist --exec npm run restart",
     "restart": "rimraf dist && npm run build && npm run start",
-    "start": "node src/server.ts",
+    "start": "node dist/server.js",
     "build": "tsc",
     "lint-staged": "lint-staged",
     "test": "jest",
@@ -23,6 +22,8 @@
     "@babel/preset-env": "^7.19.0",
     "@babel/preset-typescript": "^7.18.6",
     "@types/jest": "^29.0.0",
+    "@types/js-yaml": "^4.0.5",
+    "@types/swagger-ui-express": "^4.1.3",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/parser": "^5.36.2",
     "babel-jest": "^29.0.2",
@@ -34,5 +35,9 @@
     "nodemon": "^2.0.19",
     "prettier": "2.7.1",
     "typescript": "^4.8.2"
+  },
+  "dependencies": {
+    "express": "^4.18.1",
+    "swagger-ui-express": "^4.5.0"
   }
 }
