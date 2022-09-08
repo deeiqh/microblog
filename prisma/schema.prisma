@@ -12,11 +12,36 @@ datasource db {
 
 model Account {
   uuid String @id @default(uuid())
-  firstName String
-  lastName String
+  firstName String @map("first_name")
+  lastName String @map("last_name")
   email String @unique
+  password String
+  createdAt DateTime @default(now()) @map("created_at")
+  confirmedAt DateTime @default(now()) @map("confirmed_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  role AccountRole @default(USER)
+
   posts Post[]
-  likes Post[] @relation("likes")
+  comments Comment[]
+  likedPosts Post[] @relation("post")
+  likedComments Comment[] @relation("comment")
+
+  public PublicFields?
+
+  token Token?
+
+  @@map("accounts")
+}
+
+model PublicFields {
+  uuid String @id @default(uuid())
+  account Account @relation(fields: [accountId], references: [uuid])
+  accountId String @unique @map("account_id")
+  name Boolean @default(true)
+  email Boolean @default(true)
+
+  @@map("public_fields")
 }
 
 model Post {
@@ -24,11 +49,41 @@ model Post {
   title String
   category String?
   content String
-  account Account @relation(fields: [accountId], references: [uuid])
-  accountId String
-  likes Account[] @relation("likes")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  author Account @relation(fields: [authorId], references: [uuid])
+  authorId String @map("author_id")
+  likes Account[] @relation("post")
+
+  @@map("posts")
 }
 
-// model Comment {
-  
-// }
+model Comment {
+  uuid String @id @default(uuid())
+  content String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  author Account @relation(fields: [authorId], references: [uuid])
+  authorId String @map("author_id")
+  likes Account[] @relation("comment")
+
+  @@map("comments")
+}
+
+model Token {
+  uuid String @id @default(uuid())
+  jti String @unique @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  account Account @relation(fields: [accountId], references: [uuid])
+  accountId String @unique @map("account_id")
+
+  @@map("tokens")
+}
+
+enum AccountRole {
+  USER
+  MODERATOR
+}
