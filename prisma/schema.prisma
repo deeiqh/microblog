@@ -21,12 +21,13 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt @default(dbgenerated("('-infinity'::timestamp)"))
   configurations Json @default("{\"name_public\": false, \"email_public\": false}")
-  role Role @default(USER)
+  role UserRole @default(USER)
 
   posts Post[]
   comments Comment[]
   liked_posts Post[] @relation("post")
-  liked_comments Comment[] @relation("comment")
+  liked_comments Comment[] @relation("comment")  
+  reports Report[]
 
   token Token?
 
@@ -46,6 +47,7 @@ model Post {
   likes_number Int @default(0)
 
   likes User[] @relation("post")
+  reports Report[]
 
   user User @relation(fields: [user_id], references: [uuid])
 
@@ -63,15 +65,29 @@ model Comment {
   likes_number Int @default(0)
 
   likes User[] @relation("comment")
+  reports Report[]
 
   user User @relation(fields: [user_id], references: [uuid])
   
   @@map("comments")
 }
 
-// model Report {
+model Report {
+  uuid String @id @default(uuid())
+  user_id String
+  post_id String?
+  comment_id String?
+  message String
+  
+  created_at DateTime @default(now())
+  status MessageStatus @default(SENDED)
 
-// }
+  user User @relation(fields: [user_id], references: [uuid])
+  post Post? @relation(fields: [post_id], references: [uuid])
+  comment Comment? @relation(fields: [comment_id], references: [uuid])
+
+  @@map("reports")
+}
 
 model Token {
   uuid String @id @default(uuid())
@@ -85,7 +101,13 @@ model Token {
   @@map("tokens")
 }
 
-enum Role {
+enum UserRole {
   USER
   MODERATOR
+}
+
+enum MessageStatus {
+  SENDED
+  REVIEWING
+  SOLVED
 }
