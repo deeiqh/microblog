@@ -10,38 +10,27 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Account {
+model User {
   uuid String @id @default(uuid())
-  firstName String @map("first_name")
-  lastName String @map("last_name")
+  first_name String
+  last_name String
   email String @unique
   password String
-  createdAt DateTime @default(now()) @map("created_at")
-  confirmedAt DateTime @default(now()) @map("confirmed_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  confirmed_at DateTime?
 
-  role AccountRole @default(USER)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt @default(dbgenerated("('-infinity'::timestamp)"))
+  configurations Json @default("{\"name_public\": false, \"email_public\": false}")
+  role Role @default(USER)
 
   posts Post[]
   comments Comment[]
-  likedPosts Post[] @relation("post")
-  likedComments Comment[] @relation("comment")
-
-  public PublicFields?
+  liked_posts Post[] @relation("post")
+  liked_comments Comment[] @relation("comment")
 
   token Token?
 
-  @@map("accounts")
-}
-
-model PublicFields {
-  uuid String @id @default(uuid())
-  account Account @relation(fields: [accountId], references: [uuid])
-  accountId String @unique @map("account_id")
-  name Boolean @default(true)
-  email Boolean @default(true)
-
-  @@map("public_fields")
+  @@map("users")
 }
 
 model Post {
@@ -49,12 +38,16 @@ model Post {
   title String
   category String?
   content String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  deleted_at DateTime?
+  user_id String
 
-  author Account @relation(fields: [authorId], references: [uuid])
-  authorId String @map("author_id")
-  likes Account[] @relation("post")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt @default(dbgenerated("('-infinity'::timestamp)"))
+  likes_number Int @default(0)
+
+  likes User[] @relation("post")
+
+  user User @relation(fields: [user_id], references: [uuid])
 
   @@map("posts")
 }
@@ -62,28 +55,37 @@ model Post {
 model Comment {
   uuid String @id @default(uuid())
   content String
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  deleted_at DateTime?
+  user_id String
 
-  author Account @relation(fields: [authorId], references: [uuid])
-  authorId String @map("author_id")
-  likes Account[] @relation("comment")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt @default(dbgenerated("('-infinity'::timestamp)"))
+  likes_number Int @default(0)
 
+  likes User[] @relation("comment")
+
+  user User @relation(fields: [user_id], references: [uuid])
+  
   @@map("comments")
 }
 
+// model Report {
+
+// }
+
 model Token {
   uuid String @id @default(uuid())
-  jti String @unique @default(uuid())
-  createdAt DateTime @default(now()) @map("created_at")
+  user_id String @unique
 
-  account Account @relation(fields: [accountId], references: [uuid])
-  accountId String @unique @map("account_id")
+  payload_jti String @unique @default(uuid())
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [uuid])
 
   @@map("tokens")
 }
 
-enum AccountRole {
+enum Role {
   USER
   MODERATOR
 }

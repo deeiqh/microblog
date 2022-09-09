@@ -8,11 +8,11 @@ tags:
   - name: "general"
     description: "Monitoring routes for the server"
   - name: "auth"
-  - name: "accounts"
+  - name: "users"
   - name: "posts"
   - name: "comments"
 paths:
-  /status:
+  /health:
     get:
       tags:
         - "general"
@@ -22,11 +22,15 @@ paths:
           content:
             application/json:
               schema:
+                type: "object"
                 properties:
-                  time:
+                  status:
+                    enum: ["ok"]
+                    type: "string"
+                  uptime:
                     type: "string"
 
-  /auth/signup:
+  /auth/register:
     post:
       tags:
         - "auth"
@@ -35,11 +39,12 @@ paths:
         content:
           application/json:
             schema:
+              type: "object"
               required:
-                - firstName
-                - lastName
-                - email
-                - password
+                - "firstName"
+                - "lastName"
+                - "email"
+                - "password"
               properties:
                 firstName:
                   type: "string"
@@ -62,7 +67,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /auth/signin:
+  /auth/sign-in:
     post:
       tags:
         - "auth"
@@ -71,9 +76,10 @@ paths:
         content:
           application/json:
             schema:
+              type: "object"
               required:
-                - email
-                - password
+                - "email"
+                - "password"
               properties:
                 email:
                   type: "string"
@@ -98,7 +104,54 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /auth/signout:
+  /auth/reset-password:
+    post:
+      summary: "Send an email to set a new password"
+      tags:
+        - "auth"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "email"
+              properties:
+                email:
+                  type: "string"
+      responses:
+        "204":
+          description: "Empty body"
+  /auth/set-password:
+    patch:
+      summary: "Update password"
+      tags:
+        - "auth"
+      parameters:
+        - name: "token"
+          description: "token to protect user"
+          in: "query"
+          required: true
+          schema:
+            type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "password"
+              properties:
+                password:
+                  type: "string"
+      responses:
+        "204":
+          description: "Empty body"
+      security:
+        - api_key: []
+  /auth/sign-out:
     post:
       tags:
         - "auth"
@@ -108,10 +161,11 @@ paths:
       security:
         - api_key: []
 
-  /accounts/confirm-account:
+  /users/confirm:
     post:
+      summary: "Confirm account"
       tags:
-        - "accounts"
+        - "users"
       parameters:
         - name: "token"
           in: "query"
@@ -123,11 +177,11 @@ paths:
         "422":
           description: "Unprocessable Token"
 
-  /accounts/me:
+  /users/me:
     get:
       summary: "Retrieve own account profile"
       tags:
-        - "accounts"
+        - "users"
       responses:
         "200":
           description: "Account"
@@ -140,28 +194,12 @@ paths:
     patch:
       summary: "Update own profile"
       tags:
-        - "accounts"
+        - "users"
       requestBody:
         content:
           application/json:
             schema:
-              type: "object"
-              properties:
-                firstName:
-                  type: "string"
-                lastName:
-                  type: "string"
-                email:
-                  type: "string"
-                password:
-                  type: "string"
-                public:
-                  type: "object"
-                  properties:
-                    email:
-                      type: "boolean"
-                    name:
-                      type: "boolean"
+              $ref: "#/components/schemas/Account"
       responses:
         "200":
           description: "Updated profile"
@@ -171,7 +209,8 @@ paths:
                 $ref: "#/components/schemas/Account"
       security:
         - api_key: []
-  /accounts/me/posts:
+  /users/me/password: {}
+  /users/me/posts:
     get:
       summary: "Retrieves all posts from own account"
       tags:
@@ -187,7 +226,7 @@ paths:
                   $ref: "#/components/schemas/PostWithoutAuthor"
       security:
         - api_key: []
-  /accounts/me/comments:
+  /users/me/comments:
     get:
       summary: "Retrieves all comments from own account"
       tags:
@@ -203,11 +242,11 @@ paths:
                   $ref: "#/components/schemas/CommentWithoutAuthor"
       security:
         - api_key: []
-  /accounts/{accountId}:
+  /users/{accountId}:
     get:
       summary: "Retrieve account profile"
       tags:
-        - "accounts"
+        - "users"
       parameters:
         - $ref: "#/components/parameters/accountId"
       responses:
@@ -223,7 +262,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /accounts/{accountId}/posts:
+  /users/{accountId}/posts:
     get:
       summary: "Retrieves all posts from account"
       tags:
@@ -239,28 +278,6 @@ paths:
                 type: "array"
                 items:
                   $ref: "#/components/schemas/PostWithoutAuthor"
-        "404":
-          description: "Account not found"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-  /accounts/{accountId}/comments:
-    get:
-      summary: "Retrieves all comments from account"
-      tags:
-        - "comments"
-      parameters:
-        - $ref: "#/components/parameters/accountId"
-      responses:
-        "200":
-          description: "All comments from account"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/CommentWithoutAuthor"
         "404":
           description: "Account not found"
           content:
@@ -335,7 +352,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     patch:
-      summary: "Update post"
+      summary: "Update own post"
       tags:
         - "posts"
       parameters:
@@ -378,6 +395,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Post"
+      security:
+        - api_key: []
+  /posts/{postId}/like:
+    patch:
+      summary: "Like/dislike a post"
+      tags:
+        - "posts"
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                like:
+                  type: "boolean"
+      responses:
+        "204":
+          description: "Empty content"
+      security:
+        - api_key: []
+  /posts/{postId}/report:
+    post:
+      summary: "Report a post to moderator"
+      tags:
+        - "posts"
+      parameters:
+        - $ref: "#/components/parameters/postId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "message"
+              properties:
+                message:
+                  type: "string"
+      responses:
+        "204":
+          description: "Empty body"
       security:
         - api_key: []
   /posts/{postId}/likes:
@@ -454,20 +514,6 @@ paths:
       security:
         - api_key: []
 
-  /comments:
-    get:
-      summary: "Retrieves all comments"
-      tags:
-        - "comments"
-      responses:
-        "200":
-          description: "All comments"
-          content:
-            application/json:
-              schema:
-                type: "array"
-                items:
-                  $ref: "#/components/schemas/Comment"
   /comments/{commentId}:
     get:
       summary: "Retrieves a comment"
@@ -489,7 +535,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     patch:
-      summary: "Update comment"
+      summary: "Update own comment"
       tags:
         - "comments"
       parameters:
@@ -528,6 +574,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Comment"
+      security:
+        - api_key: []
+  /comments/{commentId}/like:
+    patch:
+      summary: "Like/dislike a comment"
+      tags:
+        - "comments"
+      parameters:
+        - $ref: "#/components/parameters/commentId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                like:
+                  type: "boolean"
+      responses:
+        "204":
+          description: "Empty content"
+      security:
+        - api_key: []
+  /comments/{commentId}/report:
+    post:
+      summary: "Report a comment to moderator"
+      tags:
+        - "comments"
+      parameters:
+        - $ref: "#/components/parameters/commentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              required:
+                - "message"
+              properties:
+                message:
+                  type: "string"
+      responses:
+        "204":
+          description: "Empty body"
       security:
         - api_key: []
   /comments/{commentId}/likes:
@@ -598,6 +687,13 @@ components:
           type: "string"
         email:
           type: "string"
+        configurations:
+          type: "object"
+          properties:
+            name_public:
+              type: "boolean"
+            email_public:
+              type: "boolean"
     PostWithoutAuthor:
       type: "object"
       properties:

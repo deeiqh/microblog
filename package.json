@@ -6,7 +6,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "dev": "nodemon --watch src -e ts --ignore dist --exec npm run restart",
+    "dev": "nodemon --watch src --watch docs/docs.yaml -e ts --ignore dist --exec npm run restart",
     "restart": "rimraf dist && npm run build && npm run start",
     "start": "node dist/server.js",
     "build": "tsc",
