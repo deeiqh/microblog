@@ -5,7 +5,7 @@ info:
 servers:
   - url: "/api"
 tags:
-  - name: "general"
+  - name: "health"
     description: "Monitoring routes for the server"
   - name: "auth"
   - name: "users"
@@ -15,7 +15,7 @@ paths:
   /health:
     get:
       tags:
-        - "general"
+        - "health"
       responses:
         "200":
           description: "Server's date"

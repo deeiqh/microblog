@@ -12,18 +12,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_1 = __importDefault(require("express"));
 const swagger_ui_express_1 = require("swagger-ui-express");
-const body_parser_1 = require("body-parser");
 const morgan_1 = __importDefault(require("morgan"));
+const express_1 = __importDefault(require("express"));
+// import { HttpError } from "http-errors";
+// import "reflect-metadata";
+// import { plainToClass } from "class-transformer";
 const swagger_1 = require("./swagger");
+const router_1 = require("./router");
+// import HttpErrorDto from "./dtos/http-error.dto";
 const app = (0, express_1.default)();
 const PORT = process.env.PORT || 3000;
 const ENVIRONMENT = process.env.NODE_ENV || "development";
-app.use("/api-docs", swagger_ui_express_1.serve, (0, swagger_ui_express_1.setup)(swagger_1.documentation, { explorer: true }));
-app.use((0, body_parser_1.json)());
-app.use((0, body_parser_1.urlencoded)({ extended: true }));
 app.use((0, morgan_1.default)("dev"));
+app.use(express_1.default.urlencoded({ extended: true }));
+app.use(express_1.default.json());
+app.use("/api-docs", swagger_ui_express_1.serve, (0, swagger_ui_express_1.setup)(swagger_1.swaggerDoc));
+app.use("/api", router_1.router);
+// app.use(
+//   (err: HttpError, req: Request, res: Response, next: NextFunction): void => {
+//     res.status(err.status ?? 500).json(plainToClass(HttpErrorDto, err));
+//   }
+// );
 app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
     console.log(`Server listening on port ${PORT}, env: ${ENVIRONMENT}`);
 }));
