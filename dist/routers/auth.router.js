@@ -8,4 +8,4 @@ const express_1 = __importDefault(require("express"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const auth_controller_1 = require("../controllers/auth.controller");
 exports.authRouter = express_1.default.Router();
-exports.authRouter.route("/register").get((0, express_async_handler_1.default)(auth_controller_1.register));
+exports.authRouter.route("/register").post((0, express_async_handler_1.default)(auth_controller_1.register));

@@ -1,13 +1,13 @@
 import { validate, ValidationError } from "class-validator";
-import createError from "http-errors";
+import createHttpError, { BadRequest } from "http-errors";
 
 export class BaseDto {
   async isValid(): Promise<boolean> {
     const validationErrors = await validate(this);
 
     if (validationErrors.length) {
-      const badRequest = new createError.BadRequest();
-      throw createError(badRequest.status, badRequest.message, {
+      const badRequest = new BadRequest();
+      throw createHttpError(badRequest.status, badRequest.message, {
         validationErrors: this.format(validationErrors),
       });
     }

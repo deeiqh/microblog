@@ -41,14 +41,14 @@ paths:
             schema:
               type: "object"
               required:
-                - "firstName"
-                - "lastName"
+                - "first_name"
+                - "last_name"
                 - "email"
                 - "password"
               properties:
-                firstName:
+                first_name:
                   type: "string"
-                lastName:
+                last_name:
                   type: "string"
                 email:
                   type: "string"
@@ -60,7 +60,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Signup"
+                $ref: "#/components/schemas/Register"
         "400":
           description: "Bad Request"
           content:
@@ -91,7 +91,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Signin"
+                $ref: "#/components/schemas/SignIn"
         "401":
           description: "Forbidden"
           content:
@@ -644,19 +644,19 @@ paths:
 
 components:
   schemas:
-    Signup:
+    Register:
       type: "object"
       properties:
-        accessToken:
+        token:
           type: "string"
-        exp:
+        expiration:
           type: "integer"
-    Signin:
+    SignIn:
       type: "object"
       properties:
-        accessToken:
+        token:
           type: "string"
-        exp:
+        expiration:
           type: "integer"
     Error:
       type: "object"
@@ -681,9 +681,9 @@ components:
       properties:
         uuid:
           type: "string"
-        firstName:
+        first_name:
           type: "string"
-        lastName:
+        last_name:
           type: "string"
         email:
           type: "string"

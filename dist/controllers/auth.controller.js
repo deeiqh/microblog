@@ -11,11 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.register = void 0;
 const class_transformer_1 = require("class-transformer");
-const auth_dto_1 = require("../dtos/auth/request/auth.dto");
+const register_dto_1 = require("../dtos/auth/request/register.dto");
+const auth_service_1 = require("../services/auth.service");
 function register(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const dto = (0, class_transformer_1.plainToInstance)(auth_dto_1.RegisterDto, req.body);
+        const dto = (0, class_transformer_1.plainToInstance)(register_dto_1.RegisterDto, req.body);
         yield dto.isValid();
+        const tokenResponse = yield auth_service_1.AuthService.register(dto);
+        res.status(200).json(tokenResponse);
     });
 }
 exports.register = register;

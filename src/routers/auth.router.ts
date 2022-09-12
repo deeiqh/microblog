@@ -4,4 +4,4 @@ import { register } from "../controllers/auth.controller";
 
 export const authRouter = express.Router();
 
-authRouter.route("/register").get(asyncHandler(register));
+authRouter.route("/register").post(asyncHandler(register));

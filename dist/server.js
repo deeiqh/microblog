@@ -28,7 +28,7 @@ app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json());
 app.use("/api-docs", swagger_ui_express_1.serve, (0, swagger_ui_express_1.setup)(swagger_1.swaggerDoc));
 app.use("/api", router_1.router);
-app.use((err, req, res) => {
+app.use((err, req, res, next) => {
     var _a;
     res.status((_a = err.status) !== null && _a !== void 0 ? _a : 500).json((0, class_transformer_1.plainToClass)(http_error_dto_1.HttpErrorDto, err));
 });

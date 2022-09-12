@@ -93,7 +93,7 @@ model Token {
   uuid String @id @default(uuid())
   user_id String @unique
 
-  payload_jti String @unique @default(uuid())
+  sub String @unique @default(uuid())
   created_at DateTime @default(now())
 
   user User @relation(fields: [user_id], references: [uuid])

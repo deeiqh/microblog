@@ -7,21 +7,29 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RegisterDto = void 0;
+const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const base_dto_1 = require("../../base.dto");
-class RegisterDto extends base_dto_1.BaseDto {
-}
+let RegisterDto = class RegisterDto extends base_dto_1.BaseDto {
+};
 __decorate([
+    (0, class_transformer_1.Expose)(),
     (0, class_validator_1.IsString)()
-], RegisterDto.prototype, "firstName", void 0);
+], RegisterDto.prototype, "first_name", void 0);
 __decorate([
+    (0, class_transformer_1.Expose)(),
     (0, class_validator_1.IsString)()
-], RegisterDto.prototype, "lastName", void 0);
+], RegisterDto.prototype, "last_name", void 0);
 __decorate([
+    (0, class_transformer_1.Expose)(),
     (0, class_validator_1.IsEmail)()
 ], RegisterDto.prototype, "email", void 0);
 __decorate([
+    (0, class_transformer_1.Expose)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)()
 ], RegisterDto.prototype, "password", void 0);
+RegisterDto = __decorate([
+    (0, class_transformer_1.Exclude)()
+], RegisterDto);
 exports.RegisterDto = RegisterDto;
