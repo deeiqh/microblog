@@ -1,11 +1,6 @@
 "use strict";
-// class HttpErrorDto {
-//   readonly status!: number;
-//   readonly message!: string;
-//   readonly properties!: ABC[];
-// }
-// class ABC {
-//   readonly property!: string;
-//   readonly constraints!: string[];
-// }
-// export default HttpErrorDto;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HttpErrorDto = void 0;
+class HttpErrorDto {
+}
+exports.HttpErrorDto = HttpErrorDto;

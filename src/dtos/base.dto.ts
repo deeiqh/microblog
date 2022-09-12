@@ -8,7 +8,7 @@ export class BaseDto {
     if (validationErrors.length) {
       const badRequest = new createError.BadRequest();
       throw createError(badRequest.status, badRequest.message, {
-        errors: this.format(validationErrors),
+        validationErrors: this.format(validationErrors),
       });
     }
 

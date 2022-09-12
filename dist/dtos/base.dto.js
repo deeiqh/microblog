@@ -22,7 +22,7 @@ class BaseDto {
             if (validationErrors.length) {
                 const badRequest = new http_errors_1.default.BadRequest();
                 throw (0, http_errors_1.default)(badRequest.status, badRequest.message, {
-                    errors: this.format(validationErrors),
+                    validationErrors: this.format(validationErrors),
                 });
             }
             return true;

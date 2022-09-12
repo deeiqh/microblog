@@ -1,12 +1,7 @@
-// class HttpErrorDto {
-//   readonly status!: number;
-//   readonly message!: string;
-//   readonly properties!: ABC[];
-// }
+export class HttpErrorDto {
+  readonly status!: number;
+  readonly message!: string;
+  readonly validationErrors?: { errors: ValidationError }[];
+}
 
-// class ABC {
-//   readonly property!: string;
-//   readonly constraints!: string[];
-// }
-
-// export default HttpErrorDto;
+type ValidationError = { [errorDetail: string]: string | string[] }[];

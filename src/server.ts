@@ -1,12 +1,12 @@
 import { serve, setup } from "swagger-ui-express";
 import morgan from "morgan";
 import express, { Request, Response, NextFunction, application } from "express";
-// import { HttpError } from "http-errors";
-// import "reflect-metadata";
-// import { plainToClass } from "class-transformer";
+import { HttpError } from "http-errors";
+import "reflect-metadata";
+import { plainToClass } from "class-transformer";
 import { swaggerDoc } from "./swagger";
 import { router } from "./router";
-// import HttpErrorDto from "./dtos/http-error.dto";
+import { HttpErrorDto } from "./dtos/http-error.dto";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,11 +19,9 @@ app.use(express.json());
 app.use("/api-docs", serve, setup(swaggerDoc));
 app.use("/api", router);
 
-// app.use(
-//   (err: HttpError, req: Request, res: Response, next: NextFunction): void => {
-//     res.status(err.status ?? 500).json(plainToClass(HttpErrorDto, err));
-//   }
-// );
+app.use((err: HttpError, req: Request, res: Response): void => {
+  res.status(err.status ?? 500).json(plainToClass(HttpErrorDto, err));
+});
 
 app.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}, env: ${ENVIRONMENT}`);
