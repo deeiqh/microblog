@@ -1,5 +1,6 @@
 import { SendgridService } from "../services/sendgrid.service";
 import { TokenService } from "../services/token.service";
+import { TokenActivity } from "../utils/enums";
 import { confirmUserEmailType } from "../utils/types";
 
 export const CONFIRM_USER_EMAIL = "CONFIRM_USER_EMAIL";
@@ -11,6 +12,7 @@ export async function confirmUserEmailEvent({
   try {
     const tokenDto = await TokenService.generateTokenDto(
       user_id,
+      TokenActivity.RESET_PASSWORD,
       process.env.JWT_EMAIL_CONFIRMATION_EXPIRATION_TIME,
       process.env.JWT_EMAIL_CONFIRMATION_SECRET
     );

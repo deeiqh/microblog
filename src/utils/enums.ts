@@ -3,3 +3,8 @@ export enum PrismaErrors {
   FOREIGN_KEY_CONSTRAINT = "P2003",
   NOT_FOUND = "P2025",
 }
+
+export enum TokenActivity {
+  RESET_PASSWORD = "RESET_PASSWORD",
+  AUTHENTICATE = "AUTHENTICATE",
+}

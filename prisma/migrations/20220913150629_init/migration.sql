@@ -4,6 +4,9 @@ CREATE TYPE "UserRole" AS ENUM ('USER', 'MODERATOR');
 -- CreateEnum
 CREATE TYPE "MessageStatus" AS ENUM ('SENDED', 'REVIEWING', 'SOLVED');
 
+-- CreateEnum
+CREATE TYPE "Activity" AS ENUM ('RESET_PASSWORD', 'AUTHENTICATE');
+
 -- CreateTable
 CREATE TABLE "users" (
     "uuid" TEXT NOT NULL,
@@ -65,6 +68,7 @@ CREATE TABLE "reports" (
 CREATE TABLE "tokens" (
     "uuid" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
+    "activity" "Activity" NOT NULL DEFAULT 'AUTHENTICATE',
     "sub" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -88,6 +92,9 @@ CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tokens_sub_key" ON "tokens"("sub");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tokens_user_id_activity_key" ON "tokens"("user_id", "activity");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_post_AB_unique" ON "_post"("A", "B");

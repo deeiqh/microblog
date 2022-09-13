@@ -91,7 +91,10 @@ model Report {
 
 model Token {
   uuid String @id @default(uuid())
+  
   user_id String
+  activity Activity @default(AUTHENTICATE)
+  @@unique([user_id, activity])
 
   sub String @unique @default(uuid())
   created_at DateTime @default(now())
@@ -110,4 +113,9 @@ enum MessageStatus {
   SENDED
   REVIEWING
   SOLVED
+}
+
+enum Activity {
+  RESET_PASSWORD
+  AUTHENTICATE
 }

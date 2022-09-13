@@ -1,11 +1,13 @@
 import { UnprocessableEntity } from "http-errors";
-import { hashSync } from "bcryptjs";
+import { compareSync, hashSync } from "bcryptjs";
 import { emitter } from "../events";
 import { RegisterDto } from "../dtos/auth/request/register.dto";
+import { NotFound, Unauthorized } from "http-errors";
 import { prisma } from "../prisma";
 import { TokenDto } from "../dtos/auth/response/token.dto";
 import { TokenService } from "./token.service";
 import { CONFIRM_USER_EMAIL } from "../events/mail.event";
+import { SignInDto } from "../dtos/auth/request/signIn.dto";
 
 export class AuthService {
   static async register({
@@ -36,6 +38,28 @@ export class AuthService {
       email: user.email,
     });
 
+    return tokenDto;
+  }
+
+  static async signIn({ email, password }: SignInDto): Promise<TokenDto> {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+      rejectOnNotFound: false,
+    });
+
+    if (!user) {
+      throw new NotFound("user not found");
+    }
+
+    const passwordOk = compareSync(password, user.password);
+
+    if (!passwordOk) {
+      throw new Unauthorized("invalid password");
+    }
+
+    const tokenDto = await TokenService.generateTokenDto(user.uuid);
     return tokenDto;
   }
 }

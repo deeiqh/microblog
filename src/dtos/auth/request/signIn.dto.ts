@@ -3,15 +3,7 @@ import { IsEmail, IsNotEmpty, IsString } from "class-validator";
 import { BaseDto } from "../../base.dto";
 
 @Exclude()
-export class RegisterDto extends BaseDto {
-  @Expose()
-  @IsString()
-  readonly first_name!: string;
-
-  @Expose()
-  @IsString()
-  readonly last_name!: string;
-
+export class SignInDto extends BaseDto {
   @Expose()
   @IsEmail()
   readonly email!: string;
