@@ -1,4 +1,4 @@
-import { UnprocessableEntity } from "http-errors";
+import { UnprocessableEntity, PreconditionFailed } from "http-errors";
 import { compareSync, hashSync } from "bcryptjs";
 import { emitter } from "../events";
 import { RegisterDto } from "../dtos/auth/request/register.dto";
@@ -8,6 +8,7 @@ import { TokenDto } from "../dtos/auth/response/token.dto";
 import { TokenService } from "./token.service";
 import { CONFIRM_USER_EMAIL } from "../events/mail.event";
 import { SignInDto } from "../dtos/auth/request/signIn.dto";
+import { verify } from "jsonwebtoken";
 
 export class AuthService {
   static async register({
@@ -61,5 +62,19 @@ export class AuthService {
 
     const tokenDto = await TokenService.generateTokenDto(user.uuid);
     return tokenDto;
+  }
+
+  static async signOut(tokenString: undefined | string): Promise<void> {
+    if (!tokenString) {
+      throw new PreconditionFailed("no token received");
+    }
+
+    const { sub } = verify(tokenString, process.env.JWT_SECRET as string);
+
+    await prisma.token.delete({
+      where: {
+        sub: sub as string,
+      },
+    });
   }
 }

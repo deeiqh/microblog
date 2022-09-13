@@ -21,3 +21,11 @@ export async function signIn(req: Request, res: Response): Promise<void> {
 
   res.status(200).json(userTokenDto);
 }
+
+export async function signOut(req: Request, res: Response): Promise<void> {
+  const tokenString = req.headers.authorization?.replace("Bearer", "");
+
+  await AuthService.signOut(tokenString);
+
+  res.status(204).end();
+}

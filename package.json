@@ -6,7 +6,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "dev": "nodemon --watch src --watch docs/swagger.yaml -e ts --ignore dist --exec npm run restart",
+    "dev": "nodemon --watch src --watch docs/swagger.yaml -e ts,yaml --ignore dist --exec npm run restart",
     "restart": "rimraf dist && npm run build && npm run start",
     "start": "node --require dotenv/config dist/server.js",
     "build": "tsc",
