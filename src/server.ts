@@ -7,6 +7,7 @@ import { plainToClass } from "class-transformer";
 import { swaggerDoc } from "./swagger";
 import { router } from "./router";
 import { HttpErrorDto } from "./dtos/http-error.dto";
+import { initEvents } from "./events";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ app.use("/api-docs", serve, setup(swaggerDoc));
 app.use("/api", router);
 
 app.use(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   (err: HttpError, req: Request, res: Response, next: NextFunction): void => {
     res.status(err.status ?? 500).json(plainToClass(HttpErrorDto, err));
   }
@@ -27,4 +29,5 @@ app.use(
 
 app.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}, env: ${ENVIRONMENT}`);
+  initEvents();
 });

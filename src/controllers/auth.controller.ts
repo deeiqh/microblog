@@ -4,8 +4,10 @@ import { RegisterDto } from "../dtos/auth/request/register.dto";
 import { AuthService } from "../services/auth.service";
 
 export async function register(req: Request, res: Response): Promise<void> {
-  const dto = plainToInstance(RegisterDto, req.body);
-  await dto.isValid();
-  const tokenResponse = await AuthService.register(dto);
-  res.status(200).json(tokenResponse);
+  const userData = plainToInstance(RegisterDto, req.body);
+  await userData.isValid();
+
+  const userTokenDto = await AuthService.register(userData);
+
+  res.status(200).json(userTokenDto);
 }

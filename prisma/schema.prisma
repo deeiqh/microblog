@@ -29,7 +29,7 @@ model User {
   liked_comments Comment[] @relation("comment")  
   reports Report[]
 
-  token Token?
+  token Token[]
 
   @@map("users")
 }
@@ -91,7 +91,7 @@ model Report {
 
 model Token {
   uuid String @id @default(uuid())
-  user_id String @unique
+  user_id String
 
   sub String @unique @default(uuid())
   created_at DateTime @default(now())

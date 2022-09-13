@@ -87,9 +87,6 @@ CREATE TABLE "_comment" (
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "tokens_user_id_key" ON "tokens"("user_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "tokens_sub_key" ON "tokens"("sub");
 
 -- CreateIndex
