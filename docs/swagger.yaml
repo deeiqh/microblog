@@ -159,7 +159,7 @@ paths:
         "204":
           description: "Empty body"
         "412":
-          description: "no token received"
+          description: "No token received"
           content:
             application/json:
               schema:
@@ -180,8 +180,18 @@ paths:
       responses:
         "204":
           description: "Empty body"
+        "412":
+          description: "No token received"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "422":
           description: "Unprocessable Token"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 
   /users/me:
     get:

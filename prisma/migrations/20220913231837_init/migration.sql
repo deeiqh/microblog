@@ -16,7 +16,7 @@ CREATE TABLE "users" (
     "password" TEXT NOT NULL,
     "confirmed_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT ('-infinity'::timestamp),
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT '0001-01-01 00:00:00 +00:00',
     "configurations" JSONB NOT NULL DEFAULT '{"name_public": false, "email_public": false}',
     "role" "UserRole" NOT NULL DEFAULT 'USER',
 
@@ -32,7 +32,7 @@ CREATE TABLE "posts" (
     "deleted_at" TIMESTAMP(3),
     "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT ('-infinity'::timestamp),
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT '0001-01-01 00:00:00 +00:00',
     "likes_number" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "posts_pkey" PRIMARY KEY ("uuid")
@@ -45,7 +45,7 @@ CREATE TABLE "comments" (
     "deleted_at" TIMESTAMP(3),
     "user_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT ('-infinity'::timestamp),
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT '0001-01-01 00:00:00 +00:00',
     "likes_number" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "comments_pkey" PRIMARY KEY ("uuid")

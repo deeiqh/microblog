@@ -19,7 +19,7 @@ model User {
   confirmed_at DateTime?
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt @default(dbgenerated("('-infinity'::timestamp)"))
+  updated_at DateTime @updatedAt @default("0001-01-01T00:00:00Z")
   configurations Json @default("{\"name_public\": false, \"email_public\": false}")
   role UserRole @default(USER)
 
@@ -43,7 +43,7 @@ model Post {
   user_id String
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt @default(dbgenerated("('-infinity'::timestamp)"))
+  updated_at DateTime @updatedAt @default("0001-01-01T00:00:00Z")
   likes_number Int @default(0)
 
   likes User[] @relation("post")
@@ -61,7 +61,7 @@ model Comment {
   user_id String
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt @default(dbgenerated("('-infinity'::timestamp)"))
+  updated_at DateTime @updatedAt @default("0001-01-01T00:00:00Z")
   likes_number Int @default(0)
 
   likes User[] @relation("comment")
