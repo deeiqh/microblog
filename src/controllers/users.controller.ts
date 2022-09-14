@@ -1,7 +1,7 @@
 import { plainToInstance } from "class-transformer";
 import { Request, Response } from "express";
 import { BadRequest } from "http-errors";
-import { userInfoDto } from "../dtos/users/info.dto";
+import { UpdateUserDto } from "../dtos/users/request/update.dto";
 import { UsersService } from "../services/users.service";
 
 export async function confirm(req: Request, res: Response): Promise<void> {
@@ -20,7 +20,7 @@ export async function me(req: Request, res: Response): Promise<void> {
 export async function updateMe(req: Request, res: Response): Promise<void> {
   const userId = req.user as string;
 
-  const newData = plainToInstance(userInfoDto, req.body);
+  const newData = plainToInstance(UpdateUserDto, req.body);
   newData.isValid();
 
   const myInfo = await UsersService.updateMe(userId, newData);
@@ -36,4 +36,23 @@ export async function retrieveUser(req: Request, res: Response): Promise<void> {
 
   const userInfo = await UsersService.retrieveUser(userId);
   res.status(200).json(userInfo);
+}
+
+export async function retrievePosts(
+  req: Request,
+  res: Response
+): Promise<void> {
+  let userId;
+  if (req.user) {
+    userId = req.user as string;
+  } else {
+    userId = req.params.userId;
+    if (!userId) {
+      throw new BadRequest("User uuid needed");
+    }
+  }
+
+  const userPosts = await UsersService.retrievePosts(userId);
+
+  res.status(200).json(userPosts);
 }

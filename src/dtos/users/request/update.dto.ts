@@ -1,11 +1,8 @@
 import { Exclude, Expose } from "class-transformer";
-import { BaseDto } from "../base.dto";
+import { BaseDto } from "../../base.dto";
 
 @Exclude()
-export class userInfoDto extends BaseDto {
-  @Expose()
-  readonly uuid!: string;
-
+export class UpdateUserDto extends BaseDto {
   @Expose()
   readonly first_name!: string;
 

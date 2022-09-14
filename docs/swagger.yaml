@@ -739,7 +739,7 @@ components:
           type: "array"
           items:
             $ref: "#/components/schemas/Comment"
-        createdAt:
+        created_at:
           type: "string"
     Post:
       allOf:
@@ -757,7 +757,7 @@ components:
           type: "string"
         likes:
           type: "integer"
-        createdAt:
+        created_at:
           type: "string"
     Comment:
       allOf:

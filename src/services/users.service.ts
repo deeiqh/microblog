@@ -7,7 +7,9 @@ import { verify } from "jsonwebtoken";
 import { plainToInstance } from "class-transformer";
 import { prisma } from "../prisma";
 import { PrismaErrors, TokenActivity } from "../utils/enums";
-import { userInfoDto } from "../dtos/users/info.dto";
+import { RetrieveUserDto } from "../dtos/users/response/retrieve.dto";
+import { UpdateUserDto } from "../dtos/users/request/update.dto";
+import { RetrievePostDto } from "../dtos/posts/response/retrieve.dto";
 import { Prisma } from "@prisma/client";
 
 export class UsersService {
@@ -70,20 +72,20 @@ export class UsersService {
     });
   }
 
-  static async me(userId: string): Promise<userInfoDto> {
+  static async me(userId: string): Promise<RetrieveUserDto> {
     const user = await prisma.user.findUnique({
       where: {
         uuid: userId,
       },
     });
 
-    return plainToInstance(userInfoDto, user);
+    return plainToInstance(RetrieveUserDto, user);
   }
 
   static async updateMe(
     userId: string,
-    newData: userInfoDto
-  ): Promise<userInfoDto> {
+    newData: UpdateUserDto
+  ): Promise<UpdateUserDto> {
     try {
       const user = await prisma.user.update({
         where: {
@@ -94,7 +96,7 @@ export class UsersService {
         },
       });
 
-      return plainToInstance(userInfoDto, user);
+      return plainToInstance(UpdateUserDto, user);
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -106,7 +108,7 @@ export class UsersService {
     }
   }
 
-  static async retrieveUser(userId: string): Promise<userInfoDto> {
+  static async retrieveUser(userId: string): Promise<RetrieveUserDto> {
     try {
       const user = await prisma.user.findUniqueOrThrow({
         where: {
@@ -114,9 +116,21 @@ export class UsersService {
         },
       });
 
-      return plainToInstance(userInfoDto, user);
+      return plainToInstance(RetrieveUserDto, user);
     } catch (error) {
       throw new NotFound("User not found");
     }
+  }
+
+  static async retrievePosts(userId: string): Promise<RetrievePostDto[]> {
+    const posts = await prisma.user.findMany({
+      where: {
+        uuid: userId,
+      },
+      select: {
+        posts: true,
+      },
+    });
+    return posts.map((post) => plainToInstance(RetrievePostDto, post));
   }
 }

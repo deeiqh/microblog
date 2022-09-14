@@ -6,6 +6,7 @@ import {
   me,
   updateMe,
   retrieveUser,
+  retrievePosts,
 } from "../controllers/users.controller";
 
 export const usersRouter = express.Router();
@@ -19,3 +20,10 @@ usersRouter
   .patch(asyncHandler(updateMe));
 
 usersRouter.route("/:userId").get(asyncHandler(retrieveUser));
+
+usersRouter
+  .route("/me/posts")
+  .all(passport.authenticate("jwt", { session: false }))
+  .get(asyncHandler(retrievePosts));
+
+usersRouter.route("/:userId/posts").get(asyncHandler(retrievePosts));
