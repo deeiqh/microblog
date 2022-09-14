@@ -19,7 +19,7 @@ model User {
   confirmed_at DateTime?
 
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt @default("0001-01-01T00:00:00Z")
+  updated_at DateTime @updatedAt
   configurations Json @default("{\"name_public\": false, \"email_public\": false}")
   role UserRole @default(USER)
 
@@ -37,15 +37,17 @@ model User {
 model Post {
   uuid String @id @default(uuid())
   title String
-  category String?
   content String
-  deleted_at DateTime?
   user_id String
+  category String?
+  deleted_at DateTime?
 
+  draft Boolean @default(false)
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt @default("0001-01-01T00:00:00Z")
+  updated_at DateTime @updatedAt
   likes_number Int @default(0)
 
+  comments Comment[]
   likes User[] @relation("post")
   reports Report[]
 
@@ -57,13 +59,16 @@ model Post {
 model Comment {
   uuid String @id @default(uuid())
   content String
-  deleted_at DateTime?
   user_id String
+  post_id String
+  deleted_at DateTime?
 
+  draft Boolean @default(false)
   created_at DateTime @default(now())
-  updated_at DateTime @updatedAt @default("0001-01-01T00:00:00Z")
+  updated_at DateTime @updatedAt
   likes_number Int @default(0)
 
+  post Post @relation(fields: [post_id], references: [uuid])
   likes User[] @relation("comment")
   reports Report[]
 

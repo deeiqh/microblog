@@ -1,4 +1,4 @@
-import { Exclude, Expose } from "class-transformer";
+import { Exclude, Expose, Transform } from "class-transformer";
 import { RetrieveUserDto } from "../../users/response/retrieve.dto";
 
 @Exclude()
@@ -10,11 +10,12 @@ export class RetrieveCommentDto {
   readonly content!: string;
 
   @Expose()
-  readonly likes!: number;
+  readonly user_id!: RetrieveUserDto;
 
   @Expose()
-  readonly created_at!: string;
+  readonly likes_number!: number;
 
   @Expose()
-  readonly author!: RetrieveUserDto;
+  @Transform(({ value }) => value?.toUTCString())
+  readonly updated_at!: Date;
 }

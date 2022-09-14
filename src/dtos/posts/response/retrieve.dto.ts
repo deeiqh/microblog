@@ -1,4 +1,4 @@
-import { Exclude, Expose } from "class-transformer";
+import { Exclude, Expose, Transform } from "class-transformer";
 import { RetrieveCommentDto } from "../../comments/response/retrieve.dto";
 
 @Exclude()
@@ -10,14 +10,21 @@ export class RetrievePostDto {
   readonly title!: string;
 
   @Expose()
-  readonly category!: string;
-
-  @Expose()
   readonly content!: string;
 
   @Expose()
-  readonly likes!: number;
+  readonly user_id!: string;
+
+  @Expose()
+  readonly category!: string;
+
+  @Expose()
+  @Transform(({ value }) => value?.toUTCString())
+  readonly updated_at!: Date;
 
   @Expose()
   readonly comments!: RetrieveCommentDto[];
+
+  @Expose()
+  readonly likes_number!: number;
 }

@@ -123,14 +123,21 @@ export class UsersService {
   }
 
   static async retrievePosts(userId: string): Promise<RetrievePostDto[]> {
-    const posts = await prisma.user.findMany({
+    const posts = await prisma.post.findMany({
       where: {
-        uuid: userId,
+        user_id: userId,
+        deleted_at: null,
+        draft: false,
       },
-      select: {
-        posts: true,
+      include: {
+        comments: {
+          where: {
+            deleted_at: null,
+          },
+        },
       },
     });
+    console.log(posts);
     return posts.map((post) => plainToInstance(RetrievePostDto, post));
   }
 }

@@ -8,5 +8,5 @@ export const postsRouter = express.Router();
 postsRouter
   .route("")
   .get(asyncHandler(retrieveAll))
-  .post(passport.authenticate("jwt", { session: false }))
+  .all(passport.authenticate("jwt", { session: false }))
   .post(asyncHandler(create));

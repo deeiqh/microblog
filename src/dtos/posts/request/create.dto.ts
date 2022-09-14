@@ -11,18 +11,14 @@ export class CreatePostDto extends BaseDto {
 
   @Expose()
   @IsString()
-  readonly category!: string;
-
-  @Expose()
-  @IsString()
   @IsNotEmpty()
   readonly content!: string;
 
   @Expose()
-  @IsBoolean()
-  readonly draft!: boolean;
+  @IsString()
+  readonly category!: string;
 
   @Expose()
   @IsBoolean()
-  readonly like!: boolean;
+  readonly draft!: boolean;
 }

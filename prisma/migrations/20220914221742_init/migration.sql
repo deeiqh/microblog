@@ -16,7 +16,7 @@ CREATE TABLE "users" (
     "password" TEXT NOT NULL,
     "confirmed_at" TIMESTAMP(3),
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT '0001-01-01 00:00:00 +00:00',
+    "updated_at" TIMESTAMP(3) NOT NULL,
     "configurations" JSONB NOT NULL DEFAULT '{"name_public": false, "email_public": false}',
     "role" "UserRole" NOT NULL DEFAULT 'USER',
 
@@ -27,12 +27,13 @@ CREATE TABLE "users" (
 CREATE TABLE "posts" (
     "uuid" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "category" TEXT,
     "content" TEXT NOT NULL,
-    "deleted_at" TIMESTAMP(3),
     "user_id" TEXT NOT NULL,
+    "category" TEXT,
+    "deleted_at" TIMESTAMP(3),
+    "draft" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT '0001-01-01 00:00:00 +00:00',
+    "updated_at" TIMESTAMP(3) NOT NULL,
     "likes_number" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "posts_pkey" PRIMARY KEY ("uuid")
@@ -42,10 +43,12 @@ CREATE TABLE "posts" (
 CREATE TABLE "comments" (
     "uuid" TEXT NOT NULL,
     "content" TEXT NOT NULL,
-    "deleted_at" TIMESTAMP(3),
     "user_id" TEXT NOT NULL,
+    "post_id" TEXT NOT NULL,
+    "deleted_at" TIMESTAMP(3),
+    "draft" BOOLEAN NOT NULL DEFAULT false,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT '0001-01-01 00:00:00 +00:00',
+    "updated_at" TIMESTAMP(3) NOT NULL,
     "likes_number" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "comments_pkey" PRIMARY KEY ("uuid")
@@ -110,6 +113,9 @@ CREATE INDEX "_comment_B_index" ON "_comment"("B");
 
 -- AddForeignKey
 ALTER TABLE "posts" ADD CONSTRAINT "posts_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "comments" ADD CONSTRAINT "comments_post_id_fkey" FOREIGN KEY ("post_id") REFERENCES "posts"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "comments" ADD CONSTRAINT "comments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("uuid") ON DELETE RESTRICT ON UPDATE CASCADE;
