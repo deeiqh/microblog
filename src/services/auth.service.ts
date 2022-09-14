@@ -1,8 +1,7 @@
-import { UnprocessableEntity } from "http-errors";
 import { compareSync, hashSync } from "bcryptjs";
 import { emitter } from "../events";
 import { RegisterDto } from "../dtos/auth/request/register.dto";
-import { NotFound, Unauthorized } from "http-errors";
+import { NotFound, BadRequest, PreconditionFailed } from "http-errors";
 import { prisma } from "../prisma";
 import { TokenDto } from "../dtos/auth/response/token.dto";
 import { TokenService } from "./token.service";
@@ -22,7 +21,7 @@ export class AuthService {
     });
 
     if (userFound) {
-      throw new UnprocessableEntity("Email already registered");
+      throw new BadRequest("Email already registered");
     }
 
     const user = await prisma.user.create({
@@ -57,7 +56,7 @@ export class AuthService {
     const passwordOk = compareSync(password, user.password);
 
     if (!passwordOk) {
-      throw new Unauthorized("Invalid password");
+      throw new BadRequest("Invalid password");
     }
 
     const tokenDto = await TokenService.generateTokenDto(user.uuid);
@@ -66,7 +65,7 @@ export class AuthService {
 
   static async signOut(tokenString: undefined | string): Promise<void> {
     if (!tokenString) {
-      throw new UnprocessableEntity("No token received");
+      throw new PreconditionFailed("No token received");
     }
 
     const { sub } = verify(tokenString, process.env.JWT_SECRET as string);

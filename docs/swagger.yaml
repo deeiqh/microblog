@@ -92,8 +92,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/SignIn"
-        "401":
-          description: "Forbidden"
+        "404":
+          description: "User not found "
           content:
             application/json:
               schema:
@@ -150,7 +150,7 @@ paths:
         "204":
           description: "Empty body"
       security:
-        - api_key: []
+        - bearerAuth: []
   /auth/sign-out:
     post:
       tags:
@@ -165,7 +165,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
       security:
-        - api_key: []
+        - bearerAuth: []
 
   /users/confirm:
     post:
@@ -186,8 +186,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "422":
-          description: "Unprocessable Token"
+        "401":
+          description: "Unauthorized"
           content:
             application/json:
               schema:
@@ -205,8 +205,14 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account"
+        "401":
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
       security:
-        - api_key: []
+        - bearerAuth: []
     patch:
       summary: "Update own profile"
       tags:
@@ -224,7 +230,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Account"
       security:
-        - api_key: []
+        - bearerAuth: []
   /users/me/password: {}
   /users/me/posts:
     get:
@@ -241,7 +247,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/PostWithoutAuthor"
       security:
-        - api_key: []
+        - bearerAuth: []
   /users/me/comments:
     get:
       summary: "Retrieves all comments from own account"
@@ -257,7 +263,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/CommentWithoutAuthor"
       security:
-        - api_key: []
+        - bearerAuth: []
   /users/{accountId}:
     get:
       summary: "Retrieve account profile"
@@ -346,7 +352,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Post"
       security:
-        - api_key: []
+        - bearerAuth: []
   /posts/{postId}:
     get:
       summary: "Retrieves a post"
@@ -397,7 +403,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Post"
       security:
-        - api_key: []
+        - bearerAuth: []
     delete:
       summary: "Delete own post"
       tags:
@@ -412,7 +418,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Post"
       security:
-        - api_key: []
+        - bearerAuth: []
   /posts/{postId}/like:
     patch:
       summary: "Like/dislike a post"
@@ -432,7 +438,7 @@ paths:
         "204":
           description: "Empty content"
       security:
-        - api_key: []
+        - bearerAuth: []
   /posts/{postId}/report:
     post:
       summary: "Report a post to moderator"
@@ -455,7 +461,7 @@ paths:
         "204":
           description: "Empty body"
       security:
-        - api_key: []
+        - bearerAuth: []
   /posts/{postId}/likes:
     get:
       summary: "Accounts that gave like to post"
@@ -528,7 +534,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Comment"
       security:
-        - api_key: []
+        - bearerAuth: []
 
   /comments/{commentId}:
     get:
@@ -576,7 +582,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Comment"
       security:
-        - api_key: []
+        - bearerAuth: []
     delete:
       summary: "Delete own comment"
       tags:
@@ -591,7 +597,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Comment"
       security:
-        - api_key: []
+        - bearerAuth: []
   /comments/{commentId}/like:
     patch:
       summary: "Like/dislike a comment"
@@ -611,7 +617,7 @@ paths:
         "204":
           description: "Empty content"
       security:
-        - api_key: []
+        - bearerAuth: []
   /comments/{commentId}/report:
     post:
       summary: "Report a comment to moderator"
@@ -634,7 +640,7 @@ paths:
         "204":
           description: "Empty body"
       security:
-        - api_key: []
+        - bearerAuth: []
   /comments/{commentId}/likes:
     get:
       summary: "Accounts that gave like to comment"
@@ -779,8 +785,7 @@ components:
         type: "string"
 
   securitySchemes:
-    api_key:
-      type: "apiKey"
-      name: "authorization"
-      in: "header"
+    bearerAuth:
+      type: "http"
+      scheme: bearer
       description: "Bearer <YOUR_TOKEN>"

@@ -1,6 +1,9 @@
-import { prisma } from "../prisma";
-import { PreconditionFailed, UnprocessableEntity } from "http-errors";
+import { PreconditionFailed, Unauthorized } from "http-errors";
 import { verify } from "jsonwebtoken";
+import { plainToInstance } from "class-transformer";
+import { prisma } from "../prisma";
+import { TokenActivity } from "../utils/enums";
+import { meDto } from "../dtos/users/request/me.dto";
 
 export class UsersService {
   static async confirm(token: undefined | string): Promise<void> {
@@ -8,14 +11,14 @@ export class UsersService {
       throw new PreconditionFailed("No token received");
     }
 
-    let sub, user;
+    let sub, tokenRecord;
     try {
       ({ sub } = verify(
         token,
         process.env.JWT_EMAIL_CONFIRMATION_SECRET as string
       ));
 
-      user = await prisma.token.findUnique({
+      tokenRecord = await prisma.token.findUnique({
         where: {
           sub: sub as string,
         },
@@ -26,6 +29,7 @@ export class UsersService {
               confirmed_at: true,
             },
           },
+          activity: true,
         },
         rejectOnNotFound: true,
       });
@@ -37,24 +41,38 @@ export class UsersService {
       });
     } catch (error) {
       console.error(error);
-      throw new UnprocessableEntity("Token already used");
+      throw new Unauthorized("Token already used");
     }
 
-    if (!user) {
-      throw new UnprocessableEntity("User does not exist");
+    if (!tokenRecord) {
+      throw new Unauthorized("User does not exist");
     }
 
-    if (user.user.confirmed_at) {
-      throw new UnprocessableEntity("User already confirmed");
+    if (tokenRecord.activity !== TokenActivity.RESET_PASSWORD) {
+      throw new Unauthorized("Wrong token");
+    }
+
+    if (tokenRecord.user.confirmed_at) {
+      throw new Unauthorized("User already confirmed");
     }
 
     await prisma.user.update({
       where: {
-        uuid: user.user.uuid,
+        uuid: tokenRecord.user.uuid,
       },
       data: {
         confirmed_at: new Date(),
       },
     });
+  }
+
+  static async me(user_id: string): Promise<meDto> {
+    const user = await prisma.user.findUnique({
+      where: {
+        uuid: user_id,
+      },
+    });
+
+    return plainToInstance(meDto, user);
   }
 }

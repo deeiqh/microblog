@@ -7,3 +7,9 @@ export async function confirm(req: Request, res: Response): Promise<void> {
 
   res.status(204).end();
 }
+
+export async function me(req: Request, res: Response): Promise<void> {
+  const user_id = req.user as string;
+  const myInfo = await UsersService.me(user_id);
+  res.status(200).json(myInfo);
+}
