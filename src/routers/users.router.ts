@@ -1,12 +1,13 @@
 import express from "express";
-import expressAsyncHandler from "express-async-handler";
+import asyncHandler from "express-async-handler";
 import passport from "passport";
-import { confirm, me } from "../controllers/users.controller";
+import { confirm, me, updateMe } from "../controllers/users.controller";
 
 export const usersRouter = express.Router();
 
-usersRouter.route("/confirm").post(expressAsyncHandler(confirm));
+usersRouter.route("/confirm").post(asyncHandler(confirm));
 usersRouter
   .route("/me")
   .all(passport.authenticate("jwt", { session: false }))
-  .get(expressAsyncHandler(me));
+  .get(asyncHandler(me))
+  .patch(asyncHandler(updateMe));

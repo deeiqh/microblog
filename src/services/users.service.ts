@@ -1,9 +1,14 @@
-import { PreconditionFailed, Unauthorized } from "http-errors";
+import createHttpError, {
+  PreconditionFailed,
+  Unauthorized,
+  NotFound,
+} from "http-errors";
 import { verify } from "jsonwebtoken";
 import { plainToInstance } from "class-transformer";
 import { prisma } from "../prisma";
-import { TokenActivity } from "../utils/enums";
-import { meDto } from "../dtos/users/request/me.dto";
+import { PrismaErrors, TokenActivity } from "../utils/enums";
+import { meDto } from "../dtos/users/me.dto";
+import { Prisma } from "@prisma/client";
 
 export class UsersService {
   static async confirm(token: undefined | string): Promise<void> {
@@ -74,5 +79,28 @@ export class UsersService {
     });
 
     return plainToInstance(meDto, user);
+  }
+
+  static async updateMe(user_id: string, newData: meDto): Promise<meDto> {
+    try {
+      const user = await prisma.user.update({
+        where: {
+          uuid: user_id,
+        },
+        data: {
+          ...newData,
+        },
+      });
+
+      return plainToInstance(meDto, user);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === PrismaErrors.DUPLICATED
+      ) {
+        throw createHttpError(403, "Forbidden, email already taken");
+      }
+      throw error;
+    }
   }
 }

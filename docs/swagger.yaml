@@ -229,6 +229,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Account"
+        "403":
+          description: "Forbidden, email already taken"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
       security:
         - bearerAuth: []
   /users/me/password: {}
