@@ -7,7 +7,7 @@ import { verify } from "jsonwebtoken";
 import { plainToInstance } from "class-transformer";
 import { prisma } from "../prisma";
 import { PrismaErrors, TokenActivity } from "../utils/enums";
-import { meDto } from "../dtos/users/me.dto";
+import { userInfoDto } from "../dtos/users/info.dto";
 import { Prisma } from "@prisma/client";
 
 export class UsersService {
@@ -23,7 +23,7 @@ export class UsersService {
         process.env.JWT_EMAIL_CONFIRMATION_SECRET as string
       ));
 
-      tokenRecord = await prisma.token.findUnique({
+      tokenRecord = await prisma.token.findUniqueOrThrow({
         where: {
           sub: sub as string,
         },
@@ -36,7 +36,6 @@ export class UsersService {
           },
           activity: true,
         },
-        rejectOnNotFound: true,
       });
 
       await prisma.token.delete({
@@ -71,28 +70,31 @@ export class UsersService {
     });
   }
 
-  static async me(user_id: string): Promise<meDto> {
+  static async me(userId: string): Promise<userInfoDto> {
     const user = await prisma.user.findUnique({
       where: {
-        uuid: user_id,
+        uuid: userId,
       },
     });
 
-    return plainToInstance(meDto, user);
+    return plainToInstance(userInfoDto, user);
   }
 
-  static async updateMe(user_id: string, newData: meDto): Promise<meDto> {
+  static async updateMe(
+    userId: string,
+    newData: userInfoDto
+  ): Promise<userInfoDto> {
     try {
       const user = await prisma.user.update({
         where: {
-          uuid: user_id,
+          uuid: userId,
         },
         data: {
           ...newData,
         },
       });
 
-      return plainToInstance(meDto, user);
+      return plainToInstance(userInfoDto, user);
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -101,6 +103,20 @@ export class UsersService {
         throw createHttpError(403, "Forbidden, email already taken");
       }
       throw error;
+    }
+  }
+
+  static async retrieveUser(userId: string): Promise<userInfoDto> {
+    try {
+      const user = await prisma.user.findUniqueOrThrow({
+        where: {
+          uuid: userId,
+        },
+      });
+
+      return plainToInstance(userInfoDto, user);
+    } catch (error) {
+      throw new NotFound("User not found");
     }
   }
 }

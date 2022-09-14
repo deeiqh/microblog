@@ -19,7 +19,6 @@ passport.use(
           user_id: true,
           activity: true,
         },
-        rejectOnNotFound: false,
       });
 
       if (!tokenRecord || tokenRecord.activity !== TokenActivity.AUTHENTICATE) {

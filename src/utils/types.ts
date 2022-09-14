@@ -1,6 +1,6 @@
 export type confirmUserEmailType = {
   email: string;
-  user_id: string;
+  userId: string;
 };
 
 export type EmailType = {

@@ -169,7 +169,7 @@ paths:
 
   /users/confirm:
     post:
-      summary: "Confirm account"
+      summary: "Confirm user"
       tags:
         - "users"
       parameters:
@@ -195,16 +195,16 @@ paths:
 
   /users/me:
     get:
-      summary: "Retrieve own account profile"
+      summary: "Retrieve own user profile"
       tags:
         - "users"
       responses:
         "200":
-          description: "Account"
+          description: "User"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account"
+                $ref: "#/components/schemas/User"
         "401":
           description: "Unauthorized"
           content:
@@ -221,14 +221,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Account"
+              $ref: "#/components/schemas/User"
       responses:
         "200":
           description: "Updated profile"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account"
+                $ref: "#/components/schemas/User"
         "403":
           description: "Forbidden, email already taken"
           content:
@@ -240,12 +240,12 @@ paths:
   /users/me/password: {}
   /users/me/posts:
     get:
-      summary: "Retrieves all posts from own account"
+      summary: "Retrieves all posts from own user"
       tags:
         - "posts"
       responses:
         "200":
-          description: "All posts from account"
+          description: "All posts from user"
           content:
             application/json:
               schema:
@@ -256,12 +256,12 @@ paths:
         - bearerAuth: []
   /users/me/comments:
     get:
-      summary: "Retrieves all comments from own account"
+      summary: "Retrieves all comments from own user"
       tags:
         - "comments"
       responses:
         "200":
-          description: "All comments from account"
+          description: "All comments from user"
           content:
             application/json:
               schema:
@@ -270,36 +270,36 @@ paths:
                   $ref: "#/components/schemas/CommentWithoutAuthor"
       security:
         - bearerAuth: []
-  /users/{accountId}:
+  /users/{userId}:
     get:
-      summary: "Retrieve account profile"
+      summary: "Retrieve user profile"
       tags:
         - "users"
       parameters:
-        - $ref: "#/components/parameters/accountId"
+        - $ref: "#/components/parameters/userId"
       responses:
         "200":
-          description: "Account"
+          description: "User"
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Account"
+                $ref: "#/components/schemas/User"
         "404":
-          description: "Account not found"
+          description: "User not found"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /users/{accountId}/posts:
+  /users/{userId}/posts:
     get:
-      summary: "Retrieves all posts from account"
+      summary: "Retrieves all posts from user"
       tags:
         - "posts"
       parameters:
-        - $ref: "#/components/parameters/accountId"
+        - $ref: "#/components/parameters/userId"
       responses:
         "200":
-          description: "All posts from account"
+          description: "All posts from user"
           content:
             application/json:
               schema:
@@ -307,7 +307,7 @@ paths:
                 items:
                   $ref: "#/components/schemas/PostWithoutAuthor"
         "404":
-          description: "Account not found"
+          description: "User not found"
           content:
             application/json:
               schema:
@@ -470,20 +470,20 @@ paths:
         - bearerAuth: []
   /posts/{postId}/likes:
     get:
-      summary: "Accounts that gave like to post"
+      summary: "Users that gave like to post"
       tags:
         - "posts"
       parameters:
         - $ref: "#/components/parameters/postId"
       responses:
         "200":
-          description: "Accounts"
+          description: "Users"
           content:
             application/json:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Account"
+                  $ref: "#/components/schemas/User"
         "404":
           description: "Post not found"
           content:
@@ -649,20 +649,20 @@ paths:
         - bearerAuth: []
   /comments/{commentId}/likes:
     get:
-      summary: "Accounts that gave like to comment"
+      summary: "Users that gave like to comment"
       tags:
         - "comments"
       parameters:
         - $ref: "#/components/parameters/commentId"
       responses:
         "200":
-          description: "Accounts"
+          description: "Users"
           content:
             application/json:
               schema:
                 type: "array"
                 items:
-                  $ref: "#/components/schemas/Account"
+                  $ref: "#/components/schemas/User"
         "404":
           description: "Comment not found"
           content:
@@ -704,7 +704,7 @@ components:
                 type: "array"
                 items:
                   type: "string"
-    Account:
+    User:
       type: "object"
       properties:
         uuid:
@@ -747,7 +747,7 @@ components:
         - type: "object"
           properties:
             author:
-              $ref: "#/components/schemas/Account"
+              $ref: "#/components/schemas/User"
     CommentWithoutAuthor:
       type: "object"
       properties:
@@ -765,7 +765,7 @@ components:
         - type: "object"
           properties:
             author:
-              $ref: "#/components/schemas/Account"
+              $ref: "#/components/schemas/User"
 
   parameters:
     postId:
@@ -782,10 +782,10 @@ components:
       required: true
       schema:
         type: "string"
-    accountId:
-      name: "accountId"
+    userId:
+      name: "userId"
       in: "path"
-      description: "The account's uuid"
+      description: "The user's uuid"
       required: true
       schema:
         type: "string"

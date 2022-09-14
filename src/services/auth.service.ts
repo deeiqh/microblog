@@ -17,7 +17,6 @@ export class AuthService {
     const userFound = await prisma.user.findUnique({
       select: { uuid: true },
       where: { email: input.email },
-      rejectOnNotFound: false,
     });
 
     if (userFound) {
@@ -34,7 +33,7 @@ export class AuthService {
     const tokenDto = await TokenService.generateTokenDto(user.uuid);
 
     emitter.emit(CONFIRM_USER_EMAIL, {
-      user_id: user.uuid,
+      userId: user.uuid,
       email: user.email,
     });
 
@@ -46,7 +45,6 @@ export class AuthService {
       where: {
         email: email,
       },
-      rejectOnNotFound: false,
     });
 
     if (!user) {

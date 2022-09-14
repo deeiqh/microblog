@@ -6,12 +6,12 @@ import { confirmUserEmailType } from "../utils/types";
 export const CONFIRM_USER_EMAIL = "CONFIRM_USER_EMAIL";
 
 export async function confirmUserEmailEvent({
-  user_id,
+  userId,
   email,
 }: confirmUserEmailType): Promise<void> {
   try {
     const tokenDto = await TokenService.generateTokenDto(
-      user_id,
+      userId,
       TokenActivity.RESET_PASSWORD,
       process.env.JWT_EMAIL_CONFIRMATION_EXPIRATION_TIME,
       process.env.JWT_EMAIL_CONFIRMATION_SECRET
