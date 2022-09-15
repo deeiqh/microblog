@@ -1,7 +1,15 @@
+import { Prisma } from "@prisma/client";
 import { plainToInstance } from "class-transformer";
+import createHttpError, {
+  NotFound,
+  Unauthorized,
+  PreconditionFailed,
+} from "http-errors";
+import { deleteIt } from "../controllers/posts.controller";
 import { CreatePostDto } from "../dtos/posts/request/create.dto";
 import { RetrievePostDto } from "../dtos/posts/response/retrieve.dto";
 import { prisma } from "../prisma";
+import { PrismaErrors } from "../utils/enums";
 
 export class PostsService {
   static async retrieveAll(): Promise<RetrievePostDto[]> {
@@ -32,5 +40,120 @@ export class PostsService {
       },
     });
     return plainToInstance(RetrievePostDto, newPost);
+  }
+
+  static async retrieve(postId: string): Promise<RetrievePostDto> {
+    try {
+      const postRetrieved = await prisma.post.findUniqueOrThrow({
+        where: {
+          uuid: postId,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      return plainToInstance(RetrievePostDto, postRetrieved);
+    } catch (error) {
+      throw new NotFound();
+    }
+  }
+
+  static async ownPost(postId: string, userId: string): Promise<void> {
+    let postAuthor;
+    try {
+      postAuthor = await prisma.post.findUniqueOrThrow({
+        where: { uuid: postId },
+        select: { user_id: true },
+      });
+    } catch (error) {
+      throw new NotFound("Post not found");
+    }
+
+    if (postAuthor.user_id !== userId) {
+      throw new Unauthorized("Not post owner");
+    }
+  }
+
+  static async update(
+    postId: string,
+    newData: CreatePostDto
+  ): Promise<RetrievePostDto> {
+    const updated = await prisma.post.update({
+      where: {
+        uuid: postId,
+      },
+      data: {
+        ...newData,
+      },
+    });
+
+    return plainToInstance(RetrievePostDto, updated);
+  }
+
+  static async deleteIt(postId: string): Promise<RetrievePostDto> {
+    const deletedPost = await prisma.post.update({
+      where: {
+        uuid: postId,
+      },
+      data: {
+        deleted_at: new Date(),
+      },
+    });
+
+    return plainToInstance(RetrievePostDto, deletedPost);
+  }
+
+  static async like(postId: string, userId: string): Promise<void> {
+    const likeUser = await prisma.post.findUnique({
+      where: {
+        uuid: postId,
+      },
+      select: {
+        likes: {
+          where: {
+            uuid: userId,
+          },
+        },
+      },
+    });
+
+    if (!likeUser) {
+      throw new NotFound("Post not found");
+    }
+
+    if (likeUser.likes.length) {
+      await prisma.post.update({
+        where: {
+          uuid: postId,
+        },
+        data: {
+          likes: {
+            disconnect: {
+              uuid: userId,
+            },
+          },
+          likes_number: {
+            decrement: 1,
+          },
+        },
+      });
+    } else {
+      await prisma.post.update({
+        where: {
+          uuid: postId,
+        },
+        data: {
+          likes: {
+            connect: {
+              uuid: userId,
+            },
+          },
+          likes_number: {
+            increment: 1,
+          },
+        },
+      });
+    }
   }
 }

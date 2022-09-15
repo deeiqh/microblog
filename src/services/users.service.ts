@@ -127,7 +127,6 @@ export class UsersService {
       where: {
         user_id: userId,
         deleted_at: null,
-        draft: false,
       },
       include: {
         comments: {

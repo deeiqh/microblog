@@ -1,4 +1,4 @@
-import { Exclude, Expose, Transform } from "class-transformer";
+import { Exclude, Expose, Transform, Type } from "class-transformer";
 import { RetrieveUserDto } from "../../users/response/retrieve.dto";
 
 @Exclude()
@@ -10,7 +10,8 @@ export class RetrieveCommentDto {
   readonly content!: string;
 
   @Expose()
-  readonly user_id!: RetrieveUserDto;
+  @Type(() => RetrieveUserDto)
+  readonly user!: RetrieveUserDto;
 
   @Expose()
   readonly likes_number!: number;

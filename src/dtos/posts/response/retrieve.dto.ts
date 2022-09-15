@@ -1,5 +1,6 @@
-import { Exclude, Expose, Transform } from "class-transformer";
+import { Exclude, Expose, Transform, Type } from "class-transformer";
 import { RetrieveCommentDto } from "../../comments/response/retrieve.dto";
+import { RetrieveUserDto } from "../../users/response/retrieve.dto";
 
 @Exclude()
 export class RetrievePostDto {
@@ -27,4 +28,8 @@ export class RetrievePostDto {
 
   @Expose()
   readonly likes_number!: number;
+
+  @Expose()
+  @Type(() => RetrieveUserDto)
+  readonly user!: RetrieveUserDto;
 }

@@ -240,7 +240,7 @@ paths:
   /users/me/password: {}
   /users/me/posts:
     get:
-      summary: "Retrieves all posts from own user"
+      summary: "Retrieves all own posts from user"
       tags:
         - "posts"
       responses:
@@ -256,7 +256,7 @@ paths:
         - bearerAuth: []
   /users/me/comments:
     get:
-      summary: "Retrieves all comments from own user"
+      summary: "Retrieves all own comments from user"
       tags:
         - "comments"
       responses:
@@ -404,6 +404,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Post"
+        "404":
+          description: "Post not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: "Unauthorized, not post owner"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
       security:
         - bearerAuth: []
     delete:
@@ -428,17 +440,21 @@ paths:
         - "posts"
       parameters:
         - $ref: "#/components/parameters/postId"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                like:
-                  type: "boolean"
       responses:
         "204":
           description: "Empty content"
+        "404":
+          description: "Post not found"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: "PreconditionFailed, can't dislike because it is not liked"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
       security:
         - bearerAuth: []
   /posts/{postId}/report:
@@ -603,14 +619,6 @@ paths:
         - "comments"
       parameters:
         - $ref: "#/components/parameters/commentId"
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: "object"
-              properties:
-                like:
-                  type: "boolean"
       responses:
         "204":
           description: "Empty content"
