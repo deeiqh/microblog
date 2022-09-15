@@ -85,3 +85,13 @@ export async function like(req: Request, res: Response): Promise<void> {
 
   res.status(204).end();
 }
+
+export async function likes(req: Request, res: Response): Promise<void> {
+  const postId = req.params.postId;
+  if (!postId) {
+    throw new BadRequest();
+  }
+
+  const users = await PostsService.likes(postId);
+  res.status(200).json(users);
+}

@@ -449,12 +449,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-        "412":
-          description: "PreconditionFailed, can't dislike because it is not liked"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
       security:
         - bearerAuth: []
   /posts/{postId}/report:

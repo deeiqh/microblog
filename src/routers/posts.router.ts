@@ -9,6 +9,7 @@ import {
   update,
   deleteIt,
   like,
+  likes,
 } from "../controllers/posts.controller";
 
 export const postsRouter = express.Router();
@@ -31,3 +32,5 @@ postsRouter
   .route("/:postId/like")
   .all(passport.authenticate("jwt", { session: false }))
   .patch(asyncHandler(like));
+
+postsRouter.route("/:postId/likes").get(asyncHandler(likes));

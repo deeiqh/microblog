@@ -1,15 +1,9 @@
-import { Prisma } from "@prisma/client";
 import { plainToInstance } from "class-transformer";
-import createHttpError, {
-  NotFound,
-  Unauthorized,
-  PreconditionFailed,
-} from "http-errors";
-import { deleteIt } from "../controllers/posts.controller";
+import { NotFound, Unauthorized } from "http-errors";
 import { CreatePostDto } from "../dtos/posts/request/create.dto";
 import { RetrievePostDto } from "../dtos/posts/response/retrieve.dto";
+import { RetrieveUserDto } from "../dtos/users/response/retrieve.dto";
 import { prisma } from "../prisma";
-import { PrismaErrors } from "../utils/enums";
 
 export class PostsService {
   static async retrieveAll(): Promise<RetrievePostDto[]> {
@@ -155,5 +149,27 @@ export class PostsService {
         },
       });
     }
+  }
+
+  static async likes(postId: string): Promise<RetrieveUserDto[]> {
+    const users = await prisma.post.findUnique({
+      where: {
+        uuid: postId,
+      },
+      select: {
+        likes: true,
+      },
+    });
+    console.dir(users, { depth: null });
+
+    if (!users) {
+      throw new NotFound("Post not found");
+    }
+
+    if (users.likes.length) {
+      return users.likes.map((user) => plainToInstance(RetrieveUserDto, user));
+    }
+
+    return [];
   }
 }
