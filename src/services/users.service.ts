@@ -11,6 +11,7 @@ import { RetrieveUserDto } from "../dtos/users/response/retrieve.dto";
 import { UpdateUserDto } from "../dtos/users/request/update.dto";
 import { RetrievePostDto } from "../dtos/posts/response/retrieve.dto";
 import { Prisma } from "@prisma/client";
+import { RetrieveCommentDto } from "../dtos/comments/response/retrieve.dto";
 
 export class UsersService {
   static async confirm(token: undefined | string): Promise<void> {
@@ -160,16 +161,17 @@ export class UsersService {
     return posts.map((post) => plainToInstance(RetrievePostDto, post));
   }
 
-  static async retrieveComments(userId: string) {
-    //Promise<RetrieveCommentDto[]> {
-    const comments = await prisma.user.findFirst({
+  static async retrieveMyComments(
+    userId: string
+  ): Promise<RetrieveCommentDto[]> {
+    const comments = await prisma.comment.findMany({
       where: {
-        uuid: userId,
-      },
-      select: {
-        comments: true,
+        user_id: userId,
       },
     });
-    console.log(comments);
+
+    return comments.map((comment) =>
+      plainToInstance(RetrieveCommentDto, comment)
+    );
   }
 }

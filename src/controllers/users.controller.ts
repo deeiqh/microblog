@@ -62,11 +62,11 @@ export async function retrievePosts(
   res.status(200).json(userPosts);
 }
 
-export async function retrieveComments(
+export async function retrieveMyComments(
   req: Request,
   res: Response
 ): Promise<void> {
   const userId = req.user as string;
-  const comments = UsersService.retrieveComments(userId);
+  const comments = await UsersService.retrieveMyComments(userId);
   res.status(200).json(comments);
 }
