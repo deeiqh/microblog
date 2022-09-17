@@ -1,6 +1,12 @@
 import { faker } from "@faker-js/faker";
-import { plainToClass, plainToInstance } from "class-transformer";
-import { Unauthorized, NotFound, Forbidden } from "http-errors";
+import { plainToInstance } from "class-transformer";
+import createHttpError, {
+  Unauthorized,
+  BadRequest,
+  NotFound,
+  PreconditionFailed,
+} from "http-errors";
+import jwt from "jsonwebtoken";
 import { RegisterDto } from "../dtos/auth/request/register.dto";
 import { SignInDto } from "../dtos/auth/request/signIn.dto";
 import { clearDatabase, prisma } from "../prisma";
@@ -9,7 +15,6 @@ import { TokenFactory } from "../utils/factories/token.factory";
 import { UserFactory } from "../utils/factories/user.factory";
 import { AuthService } from "./auth.service";
 import { TokenService } from "./token.service";
-import { UsersService } from "./users.service";
 
 describe("AuthService", () => {
   let userFactory: UserFactory;
@@ -27,43 +32,46 @@ describe("AuthService", () => {
     jest.clearAllMocks();
   });
 
-  //   describe("register", async () => {
-
-  //     let email: string;
-  //     let password: string;
-
-  //     beforeAll(() => {
-  //       email = faker.internet.email();
-  //       password = faker.internet.password();
-  //     });
-
-  //     it('should create a user if data is ok', async () => {
-  //         const data = plainToClass(RegisterDto, {
-  //             first_name: faker.name.firstName(),
-  //             last_name: faker.name.lastName(),
-  //             email ,
-  //             password ,
-  //           });
-  //         await expect(AuthService.register(data)).
-  //     })
-
-  //     it('should throw error if email already registered', () => {
-  //         return
-  //     })
-
-  //   })
-
-  describe("sign in", () => {
-    let email: string;
-    let password: string;
-
-    beforeAll(() => {
-      email = faker.internet.email();
-      password = faker.internet.password();
+  describe("register", () => {
+    it("should throw error if email already registered", async () => {
+      const data = await userFactory.make();
+      await expect(
+        AuthService.register(plainToInstance(RegisterDto, data))
+      ).rejects.toThrowError(new BadRequest("Email already registered"));
     });
 
+    it("should return tokenDto if input data is ok", async () => {
+      const data = {
+        first_name: faker.name.firstName(),
+        last_name: faker.name.lastName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+      } as RegisterDto;
+
+      const result = await AuthService.register(data);
+
+      expect(result).toHaveProperty("token");
+    });
+
+    it("should emit confirm email event", async () => {
+      const emitter = jest.mock("eventemitter2");
+
+      const data = {
+        first_name: faker.name.firstName(),
+        last_name: faker.name.lastName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+      } as RegisterDto;
+
+      await AuthService.register(data);
+
+      expect(emitter.mock.call.length).toBe(1);
+    });
+  });
+
+  describe("signIn", () => {
     it("should throw an error if user not found", async () => {
-      const data = plainToClass(SignInDto, {
+      const data = plainToInstance(SignInDto, {
         email: faker.internet.email(),
         password: faker.internet.password(),
       });
@@ -73,14 +81,6 @@ describe("AuthService", () => {
     });
 
     it("should throw an error if incorrect password", async () => {
-      //   const dataRegister = plainToInstance(RegisterDto, {
-      //     first_name: faker.name.firstName(),
-      //     last_name: faker.name.lastName(),
-      //     email,
-      //     password,
-      //   });
-      //   const { token } = await AuthService.register(dataRegister);
-      //   await AuthService.signOut(token);
       const { email } = await userFactory.make();
 
       const dataSignIn = plainToInstance(SignInDto, {
@@ -114,7 +114,7 @@ describe("AuthService", () => {
           faker.datatype.string(),
           TokenActivity.AUTHENTICATE
         )
-      ).rejects.toThrowError("User not found");
+      ).rejects.toThrowError(new NotFound("User not found"));
     });
 
     it("should thrown an error if user is already signed in", async () => {
@@ -127,7 +127,7 @@ describe("AuthService", () => {
 
       await expect(
         TokenService.createTokenRecord(user.uuid, TokenActivity.AUTHENTICATE)
-      ).rejects.toThrowError("Forbidden. Sign out first");
+      ).rejects.toThrowError(createHttpError(403, "Forbidden. Sign out first"));
     });
 
     it("should thrown an error if user has previous token to confirm email", async () => {
@@ -137,27 +137,58 @@ describe("AuthService", () => {
 
       await expect(
         TokenService.createTokenRecord(uuid, TokenActivity.RESET_PASSWORD)
-      ).rejects.toThrowError("Forbidden. Has previous token to confirm email");
+      ).rejects.toThrowError(
+        createHttpError(403, "Forbidden. Has previous token to confirm email")
+      );
     });
   });
 
   describe("signOut", () => {
-    it("should return if no provided token", async () => {
+    it("should return error if no provided token", async () => {
       const token = undefined;
       await expect(AuthService.signOut(token)).rejects.toThrowError(
-        "No token received"
+        new PreconditionFailed("No token received")
       );
     });
 
     it("should throw error if invalid token", async () => {
       const token = faker.datatype.string();
       await expect(AuthService.signOut(token)).rejects.toThrowError(
-        "Already signed out"
+        new PreconditionFailed("Already signed out")
       );
     });
 
-    // it('should delete the token', () => {
+    it("should delete the token", async () => {
+      const token = await tokenFactory.make({
+        sub: faker.datatype.string(),
+        activity: TokenActivity.AUTHENTICATE,
+        user: { connect: { uuid: (await userFactory.make()).uuid } },
+      });
 
-    // })
+      jest
+        .spyOn(jwt, "verify")
+        .mockImplementation(jest.fn(() => ({ sub: token.sub })));
+
+      const result = await AuthService.signOut(faker.datatype.string());
+
+      expect(result).toBeUndefined();
+    });
+
+    describe("generateTokenDto", () => {
+      it("should generate confirm email token", async () => {
+        const { uuid } = await userFactory.make();
+        const activity = TokenActivity.RESET_PASSWORD;
+
+        jest.spyOn(jwt, "sign").mockImplementation(jest.fn(() => "13:11:07"));
+
+        const result = await TokenService.generateTokenDto(
+          uuid,
+          activity,
+          TokenActivity.RESET_PASSWORD
+        );
+
+        expect(result).toHaveProperty("token", "13:11:07");
+      });
+    });
   });
 });
