@@ -3,7 +3,7 @@ import createHttpError, {
   Unauthorized,
   NotFound,
 } from "http-errors";
-import { verify } from "jsonwebtoken";
+import { JwtPayload, verify } from "jsonwebtoken";
 import { plainToInstance } from "class-transformer";
 import { prisma } from "../prisma";
 import { PrismaErrors, TokenActivity } from "../utils/enums";
@@ -19,14 +19,27 @@ export class UsersService {
       throw new PreconditionFailed("No token received");
     }
 
-    let sub;
+    let sub, exp;
     try {
-      ({ sub } = verify(
+      ({ sub, exp } = verify(
         token,
         process.env.JWT_EMAIL_CONFIRMATION_SECRET as string
-      ));
+      ) as JwtPayload);
     } catch (error) {
       throw new PreconditionFailed("Invalid token");
+    }
+
+    if ((exp as number) < new Date().getTime()) {
+      try {
+        await prisma.token.delete({
+          where: {
+            sub: sub as string,
+          },
+        });
+      } catch (error) {
+        throw new PreconditionFailed("Deleted token");
+      }
+      throw new Unauthorized("Expired token");
     }
 
     const tokenRecord = await prisma.token.findUnique({

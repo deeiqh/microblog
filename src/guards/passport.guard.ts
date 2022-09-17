@@ -26,7 +26,15 @@ passport.use(
       }
 
       if (jwtPayload.exp < new Date().getTime()) {
-        return done(new Unauthorized("Expired token"), null);
+        await prisma.token.delete({
+          where: {
+            sub: jwtPayload.sub as string,
+          },
+        });
+        return done(
+          new Unauthorized("Expired token. Now you are signed out"),
+          null
+        );
       }
 
       return done(null, tokenRecord.user_id);

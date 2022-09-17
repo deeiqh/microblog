@@ -39,15 +39,13 @@ export class TokenService {
           case PrismaErrors.FOREIGN_KEY_CONSTRAINT:
             throw new NotFound("User not found");
           case PrismaErrors.DUPLICATED: {
-            await prisma.token.delete({
-              where: {
-                user_id_activity: {
-                  user_id: userId,
-                  activity: TokenActivity.AUTHENTICATE,
-                },
-              },
-            });
-            throw createHttpError(403, "Forbidden, sign in again.");
+            if (activity === TokenActivity.AUTHENTICATE) {
+              throw createHttpError(403, "Forbidden. Sign out first");
+            }
+            throw createHttpError(
+              403,
+              "Forbidden. Has previous token to confirm email"
+            );
           }
           default:
             throw error;

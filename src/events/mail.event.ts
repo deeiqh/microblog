@@ -13,7 +13,7 @@ export async function confirmUserEmailEvent({
     const tokenDto = await TokenService.generateTokenDto(
       userId,
       TokenActivity.RESET_PASSWORD,
-      process.env.JWT_EMAIL_CONFIRMATION_EXPIRATION_TIME,
+      process.env.JWT_EMAIL_CONFIRMATION_EXPIRATION_TIME_MINUTES,
       process.env.JWT_EMAIL_CONFIRMATION_SECRET
     );
     const expiration = new Date(tokenDto.expiration).toUTCString();

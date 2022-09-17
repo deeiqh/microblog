@@ -74,7 +74,7 @@ export class AuthService {
         },
       });
     } catch (error) {
-      throw new PreconditionFailed("Invalid token");
+      throw new PreconditionFailed("Already signed out");
     }
   }
 }
