@@ -43,7 +43,7 @@ export class AuthService {
   static async signIn({ email, password }: SignInDto): Promise<TokenDto> {
     const user = await prisma.user.findUnique({
       where: {
-        email: email,
+        email,
       },
     });
 
