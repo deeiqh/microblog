@@ -122,21 +122,54 @@ export class UsersService {
     }
   }
 
-  static async retrievePosts(userId: string): Promise<RetrievePostDto[]> {
+  static async retrieveMyPosts(userId: string): Promise<RetrievePostDto[]> {
     const posts = await prisma.post.findMany({
       where: {
         user_id: userId,
-        deleted_at: null,
       },
       include: {
         comments: {
           where: {
             deleted_at: null,
+            draft: false,
           },
         },
       },
     });
-    console.log(posts);
+
     return posts.map((post) => plainToInstance(RetrievePostDto, post));
+  }
+
+  static async retrievePosts(userId: string): Promise<RetrievePostDto[]> {
+    const posts = await prisma.post.findMany({
+      where: {
+        user_id: userId,
+        deleted_at: null,
+        draft: false,
+      },
+      include: {
+        comments: {
+          where: {
+            deleted_at: null,
+            draft: false,
+          },
+        },
+      },
+    });
+
+    return posts.map((post) => plainToInstance(RetrievePostDto, post));
+  }
+
+  static async retrieveComments(userId: string) {
+    //Promise<RetrieveCommentDto[]> {
+    const comments = await prisma.user.findFirst({
+      where: {
+        uuid: userId,
+      },
+      select: {
+        comments: true,
+      },
+    });
+    console.log(comments);
   }
 }

@@ -10,6 +10,8 @@ import {
   deleteIt,
   like,
   likes,
+  createComment,
+  retrieveComments,
 } from "../controllers/posts.controller";
 
 export const postsRouter = express.Router();
@@ -34,3 +36,9 @@ postsRouter
   .patch(asyncHandler(like));
 
 postsRouter.route("/:postId/likes").get(asyncHandler(likes));
+
+postsRouter
+  .route("/:postId/comments")
+  .get(asyncHandler(retrieveComments))
+  .all(passport.authenticate("jwt", { session: false }))
+  .post(asyncHandler(createComment));

@@ -67,11 +67,14 @@ export class AuthService {
     }
 
     const { sub } = verify(tokenString, process.env.JWT_SECRET as string);
-
-    await prisma.token.delete({
-      where: {
-        sub: sub as string,
-      },
-    });
+    try {
+      await prisma.token.delete({
+        where: {
+          sub: sub as string,
+        },
+      });
+    } catch (error) {
+      throw new PreconditionFailed("Invalid token");
+    }
   }
 }

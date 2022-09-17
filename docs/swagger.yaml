@@ -786,6 +786,6 @@ components:
 
   securitySchemes:
     bearerAuth:
+      description: "Bearer <YOUR_TOKEN>"
       type: "http"
       scheme: bearer
-      description: "Bearer <YOUR_TOKEN>"

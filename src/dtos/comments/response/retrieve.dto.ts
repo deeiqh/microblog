@@ -10,13 +10,20 @@ export class RetrieveCommentDto {
   readonly content!: string;
 
   @Expose()
-  @Type(() => RetrieveUserDto)
-  readonly user!: RetrieveUserDto;
+  readonly user_id!: string;
+
+  @Expose()
+  @Transform(({ value }) => value?.toUTCString())
+  readonly deleted_at!: Date;
+
+  @Expose()
+  @Transform(({ value }) => value?.toUTCString())
+  readonly updated_at!: Date;
 
   @Expose()
   readonly likes_number!: number;
 
   @Expose()
-  @Transform(({ value }) => value?.toUTCString())
-  readonly updated_at!: Date;
+  @Type(() => RetrieveUserDto)
+  readonly user!: RetrieveUserDto;
 }

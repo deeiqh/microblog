@@ -25,6 +25,10 @@ passport.use(
         return done(new Unauthorized("Invalid token"), null);
       }
 
+      if (jwtPayload.exp < new Date().getTime()) {
+        return done(new Unauthorized("Expired token"), null);
+      }
+
       return done(null, tokenRecord.user_id);
     }
   )

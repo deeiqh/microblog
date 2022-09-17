@@ -23,7 +23,7 @@ export async function signIn(req: Request, res: Response): Promise<void> {
 }
 
 export async function signOut(req: Request, res: Response): Promise<void> {
-  const tokenString = req.headers.authorization?.replace("Bearer", "");
+  const tokenString = req.headers.authorization?.replace("Bearer ", "");
 
   await AuthService.signOut(tokenString);
 

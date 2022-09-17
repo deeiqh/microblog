@@ -6,5 +6,5 @@ export class TokenDto {
   readonly token!: string;
 
   @Expose()
-  readonly expiration!: number;
+  readonly expiration!: string;
 }

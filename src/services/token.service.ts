@@ -1,5 +1,5 @@
 import { Token, Prisma } from "@prisma/client";
-import { sign } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 import createHttpError, { NotFound } from "http-errors";
 import { prisma } from "../prisma";
 import { TokenDto } from "../dtos/auth/response/token.dto";
@@ -18,7 +18,7 @@ export class TokenService {
     const sub = (await this.createTokenRecord(userId, activity)).sub;
     const token = sign({ sub, iat, exp }, secret);
 
-    return { token, expiration: exp };
+    return { token, expiration: new Date(exp).toUTCString() };
   }
 
   static async createTokenRecord(
@@ -37,13 +37,23 @@ export class TokenService {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         switch (error.code) {
           case PrismaErrors.FOREIGN_KEY_CONSTRAINT:
-            throw new NotFound("user not found");
-          case PrismaErrors.DUPLICATED:
-            throw createHttpError(403, "Forbidden, user already signed in");
+            throw new NotFound("User not found");
+          case PrismaErrors.DUPLICATED: {
+            await prisma.token.delete({
+              where: {
+                user_id_activity: {
+                  user_id: userId,
+                  activity: TokenActivity.AUTHENTICATE,
+                },
+              },
+            });
+            throw createHttpError(403, "Forbidden, sign in again.");
+          }
           default:
             throw error;
         }
       }
+
       throw error;
     }
   }

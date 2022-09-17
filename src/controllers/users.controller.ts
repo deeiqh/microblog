@@ -38,21 +38,35 @@ export async function retrieveUser(req: Request, res: Response): Promise<void> {
   res.status(200).json(userInfo);
 }
 
+export async function retrieveMyPosts(
+  req: Request,
+  res: Response
+): Promise<void> {
+  const userId = req.user as string;
+
+  const userPosts = await UsersService.retrieveMyPosts(userId);
+
+  res.status(200).json(userPosts);
+}
 export async function retrievePosts(
   req: Request,
   res: Response
 ): Promise<void> {
-  let userId;
-  if (req.user) {
-    userId = req.user as string;
-  } else {
-    userId = req.params.userId;
-    if (!userId) {
-      throw new BadRequest("User uuid needed");
-    }
+  const userId = req.params.userId;
+  if (!userId) {
+    throw new BadRequest("User uuid needed");
   }
 
   const userPosts = await UsersService.retrievePosts(userId);
 
   res.status(200).json(userPosts);
+}
+
+export async function retrieveComments(
+  req: Request,
+  res: Response
+): Promise<void> {
+  const userId = req.user as string;
+  const comments = UsersService.retrieveComments(userId);
+  res.status(200).json(comments);
 }

@@ -1,7 +1,7 @@
 import { SendgridService } from "../services/sendgrid.service";
 import { TokenService } from "../services/token.service";
 import { TokenActivity } from "../utils/enums";
-import { confirmUserEmailType } from "../utils/types";
+import { confirmUserEmailType } from "../utils/types/email.type";
 
 export const CONFIRM_USER_EMAIL = "CONFIRM_USER_EMAIL";
 

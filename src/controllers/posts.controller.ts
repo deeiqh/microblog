@@ -1,6 +1,7 @@
 import { plainToInstance } from "class-transformer";
 import { Request, Response, NextFunction } from "express";
 import { BadRequest } from "http-errors";
+import { CreateCommentDto } from "../dtos/comments/request/create.dto";
 import { CreatePostDto } from "../dtos/posts/request/create.dto";
 import { PostsService } from "../services/posts.service";
 
@@ -94,4 +95,41 @@ export async function likes(req: Request, res: Response): Promise<void> {
 
   const users = await PostsService.likes(postId);
   res.status(200).json(users);
+}
+
+export async function createComment(
+  req: Request,
+  res: Response
+): Promise<void> {
+  const postId = req.params.postId;
+  if (!postId) {
+    throw new BadRequest();
+  }
+
+  const userId = req.user as string;
+
+  const newCommentData = plainToInstance(CreateCommentDto, req.body);
+  newCommentData.isValid();
+
+  const comments = await PostsService.createComment(
+    postId,
+    userId,
+    newCommentData
+  );
+
+  res.status(200).json(comments);
+}
+
+export async function retrieveComments(
+  req: Request,
+  res: Response
+): Promise<void> {
+  const postId = req.params.postId;
+  if (!postId) {
+    throw new BadRequest();
+  }
+
+  const commentsRetrieved = await PostsService.retrieveComments(postId);
+
+  res.status(200).json(commentsRetrieved);
 }

@@ -6,7 +6,9 @@ import {
   me,
   updateMe,
   retrieveUser,
+  retrieveMyPosts,
   retrievePosts,
+  retrieveComments,
 } from "../controllers/users.controller";
 
 export const usersRouter = express.Router();
@@ -24,6 +26,11 @@ usersRouter.route("/:userId").get(asyncHandler(retrieveUser));
 usersRouter
   .route("/me/posts")
   .all(passport.authenticate("jwt", { session: false }))
-  .get(asyncHandler(retrievePosts));
+  .get(asyncHandler(retrieveMyPosts));
 
 usersRouter.route("/:userId/posts").get(asyncHandler(retrievePosts));
+
+usersRouter
+  .route("/me/comments")
+  .all(passport.authenticate("jwt", { session: false }))
+  .get(asyncHandler(retrieveComments));

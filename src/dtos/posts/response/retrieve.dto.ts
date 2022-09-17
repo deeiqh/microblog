@@ -21,6 +21,10 @@ export class RetrievePostDto {
 
   @Expose()
   @Transform(({ value }) => value?.toUTCString())
+  readonly deleted_at!: Date;
+
+  @Expose()
+  @Transform(({ value }) => value?.toUTCString())
   readonly updated_at!: Date;
 
   @Expose()

@@ -1,5 +1,7 @@
 import { plainToInstance } from "class-transformer";
 import { NotFound, Unauthorized } from "http-errors";
+import { CreateCommentDto } from "../dtos/comments/request/create.dto";
+import { RetrieveCommentDto } from "../dtos/comments/response/retrieve.dto";
 import { CreatePostDto } from "../dtos/posts/request/create.dto";
 import { RetrievePostDto } from "../dtos/posts/response/retrieve.dto";
 import { RetrieveUserDto } from "../dtos/users/response/retrieve.dto";
@@ -160,7 +162,6 @@ export class PostsService {
         likes: true,
       },
     });
-    console.dir(users, { depth: null });
 
     if (!users) {
       throw new NotFound("Post not found");
@@ -171,5 +172,46 @@ export class PostsService {
     }
 
     return [];
+  }
+
+  static async createComment(
+    postId: string,
+    userId: string,
+    newCommentData: CreateCommentDto
+  ): Promise<RetrieveCommentDto> {
+    try {
+      const newComment = await prisma.comment.create({
+        data: {
+          ...newCommentData,
+          post_id: postId,
+          user_id: userId,
+        },
+      });
+
+      return plainToInstance(RetrieveCommentDto, newComment);
+    } catch (error) {
+      throw new NotFound("Post not found");
+    }
+  }
+
+  static async retrieveComments(postId: string): Promise<RetrieveCommentDto[]> {
+    try {
+      const commentsRetrieved = await prisma.post.findUnique({
+        where: {
+          uuid: postId,
+        },
+        select: {
+          comments: true,
+        },
+      });
+
+      if (!commentsRetrieved) return [];
+
+      return commentsRetrieved.comments.map((comment) =>
+        plainToInstance(RetrieveCommentDto, comment)
+      );
+    } catch (error) {
+      throw new NotFound("Post not found");
+    }
   }
 }
