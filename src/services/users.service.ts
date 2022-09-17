@@ -19,40 +19,33 @@ export class UsersService {
       throw new PreconditionFailed("No token received");
     }
 
-    let sub, tokenRecord;
+    let sub;
     try {
       ({ sub } = verify(
         token,
         process.env.JWT_EMAIL_CONFIRMATION_SECRET as string
       ));
-
-      tokenRecord = await prisma.token.findUniqueOrThrow({
-        where: {
-          sub: sub as string,
-        },
-        select: {
-          user: {
-            select: {
-              uuid: true,
-              confirmed_at: true,
-            },
-          },
-          activity: true,
-        },
-      });
-
-      await prisma.token.delete({
-        where: {
-          sub: sub as string,
-        },
-      });
     } catch (error) {
-      console.error(error);
-      throw new Unauthorized("Token already used");
+      throw new PreconditionFailed("Invalid token");
     }
 
+    const tokenRecord = await prisma.token.findUnique({
+      where: {
+        sub: sub as string,
+      },
+      select: {
+        user: {
+          select: {
+            uuid: true,
+            confirmed_at: true,
+          },
+        },
+        activity: true,
+      },
+    });
+
     if (!tokenRecord) {
-      throw new Unauthorized("User does not exist");
+      throw new Unauthorized("Token already used");
     }
 
     if (tokenRecord.activity !== TokenActivity.RESET_PASSWORD) {
@@ -60,8 +53,19 @@ export class UsersService {
     }
 
     if (tokenRecord.user.confirmed_at) {
+      await prisma.token.delete({
+        where: {
+          sub: sub as string,
+        },
+      });
       throw new Unauthorized("User already confirmed");
     }
+
+    await prisma.token.delete({
+      where: {
+        sub: sub as string,
+      },
+    });
 
     await prisma.user.update({
       where: {
@@ -79,7 +83,6 @@ export class UsersService {
         uuid: userId,
       },
     });
-
     return plainToInstance(RetrieveUserDto, user);
   }
 
@@ -96,7 +99,6 @@ export class UsersService {
           ...newData,
         },
       });
-
       return plainToInstance(UpdateUserDto, user);
     } catch (error) {
       if (
@@ -110,17 +112,17 @@ export class UsersService {
   }
 
   static async retrieveUser(userId: string): Promise<RetrieveUserDto> {
-    try {
-      const user = await prisma.user.findUniqueOrThrow({
-        where: {
-          uuid: userId,
-        },
-      });
+    const user = await prisma.user.findUnique({
+      where: {
+        uuid: userId,
+      },
+    });
 
-      return plainToInstance(RetrieveUserDto, user);
-    } catch (error) {
+    if (!user) {
       throw new NotFound("User not found");
     }
+
+    return plainToInstance(RetrieveUserDto, user);
   }
 
   static async retrieveMyPosts(userId: string): Promise<RetrievePostDto[]> {
@@ -137,7 +139,6 @@ export class UsersService {
         },
       },
     });
-
     return posts.map((post) => plainToInstance(RetrievePostDto, post));
   }
 
@@ -157,7 +158,6 @@ export class UsersService {
         },
       },
     });
-
     return posts.map((post) => plainToInstance(RetrievePostDto, post));
   }
 
@@ -169,7 +169,6 @@ export class UsersService {
         user_id: userId,
       },
     });
-
     return comments.map((comment) =>
       plainToInstance(RetrieveCommentDto, comment)
     );

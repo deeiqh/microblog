@@ -5,6 +5,7 @@ import { RetrieveCommentDto } from "../dtos/comments/response/retrieve.dto";
 import { RetrievePostDto } from "../dtos/posts/response/retrieve.dto";
 import { RetrieveUserDto } from "../dtos/users/response/retrieve.dto";
 import { prisma } from "../prisma";
+import { Model } from "../utils/enums";
 import {
   CrudInput,
   CrudOutput,
@@ -18,12 +19,12 @@ export class CrudService {
     retrieveDto: RetrieveDtoClass;
   } {
     switch (model) {
-      case "post":
+      case Model.POST:
         return {
           useModel: prisma.post,
           retrieveDto: RetrievePostDto,
         };
-      case "comment":
+      case Model.COMMENT:
         return {
           useModel: prisma.comment,
           retrieveDto: RetrieveCommentDto,
@@ -35,46 +36,41 @@ export class CrudService {
 
   static async create({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-
     const newRecord = await (useModel as any).create({
       data: {
         ...args.data,
         user_id: args.uuid,
       },
     });
-
     return plainToInstance(retrieveDto, newRecord);
   }
 
   static async retrieve({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
+    const postRetrieved = await (useModel as any).findUnique({
+      where: {
+        uuid: args.uuid,
+      },
+      include: {
+        user: true,
+      },
+    });
 
-    try {
-      const postRetrieved = await (useModel as any).findUniqueOrThrow({
-        where: {
-          uuid: args.uuid,
-        },
-        include: {
-          user: true,
-        },
-      });
-
-      return plainToInstance(retrieveDto, postRetrieved);
-    } catch (error) {
+    if (!postRetrieved) {
       throw new NotFound();
     }
+
+    return plainToInstance(retrieveDto, postRetrieved);
   }
 
   static async own({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
+    const author = await (useModel as any).findUnique({
+      where: { uuid: args.uuid },
+      select: { user_id: true },
+    });
 
-    let author;
-    try {
-      author = await (useModel as any).findUniqueOrThrow({
-        where: { uuid: args.uuid },
-        select: { user_id: true },
-      });
-    } catch (error) {
+    if (!author) {
       throw new NotFound();
     }
 
@@ -85,7 +81,6 @@ export class CrudService {
 
   static async update({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-
     const updated = await (useModel as any).update({
       where: {
         uuid: args.uuid,
@@ -94,13 +89,11 @@ export class CrudService {
         ...args.data,
       },
     });
-
     return plainToInstance(retrieveDto, updated);
   }
 
   static async deleteIt({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-
     const deletedPost = await (useModel as any).update({
       where: {
         uuid: args.uuid,
@@ -109,13 +102,11 @@ export class CrudService {
         deleted_at: new Date(),
       },
     });
-
     return plainToInstance(retrieveDto, deletedPost);
   }
 
   static async like({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
-
     const likeUser = await (useModel as any).findUnique({
       where: {
         uuid: args.uuid,
@@ -170,7 +161,6 @@ export class CrudService {
 
   static async likes({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
-
     const users = await (useModel as any).findUnique({
       where: {
         uuid: args.uuid,
@@ -189,7 +179,6 @@ export class CrudService {
         plainToInstance(RetrieveUserDto, user)
       );
     }
-
     return [];
   }
 }

@@ -5,7 +5,7 @@ import {
   retrieveAll,
   create,
   retrieve,
-  ownPost,
+  own,
   update,
   deleteIt,
   like,
@@ -26,7 +26,7 @@ postsRouter
   .route("/:postId")
   .get(asyncHandler(retrieve))
   .all(passport.authenticate("jwt", { session: false }))
-  .all(asyncHandler(ownPost))
+  .all(asyncHandler(own))
   .patch(asyncHandler(update))
   .delete(asyncHandler(deleteIt));
 

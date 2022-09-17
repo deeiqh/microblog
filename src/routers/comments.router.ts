@@ -3,7 +3,7 @@ import asyncHandler from "express-async-handler";
 import passport from "passport";
 import {
   retrieveComment,
-  ownComment,
+  own,
   update,
   deleteIt,
   like,
@@ -16,7 +16,7 @@ commentsRouter
   .route("/:commentId")
   .get(asyncHandler(retrieveComment))
   .all(passport.authenticate("jwt", { session: false }))
-  .all(asyncHandler(ownComment))
+  .all(asyncHandler(own))
   .patch(asyncHandler(update))
   .delete(asyncHandler(deleteIt));
 

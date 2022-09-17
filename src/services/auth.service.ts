@@ -66,8 +66,8 @@ export class AuthService {
       throw new PreconditionFailed("No token received");
     }
 
-    const { sub } = verify(tokenString, process.env.JWT_SECRET as string);
     try {
+      const { sub } = verify(tokenString, process.env.JWT_SECRET as string);
       await prisma.token.delete({
         where: {
           sub: sub as string,

@@ -7,25 +7,19 @@ import { SignInDto } from "../dtos/auth/request/signIn.dto";
 export async function register(req: Request, res: Response): Promise<void> {
   const userData = plainToInstance(RegisterDto, req.body);
   await userData.isValid();
-
   const userTokenDto = await AuthService.register(userData);
-
   res.status(200).json(userTokenDto);
 }
 
 export async function signIn(req: Request, res: Response): Promise<void> {
   const signInData = plainToInstance(SignInDto, req.body);
   await signInData.isValid();
-
   const userTokenDto = await AuthService.signIn(signInData);
-
   res.status(200).json(userTokenDto);
 }
 
 export async function signOut(req: Request, res: Response): Promise<void> {
   const tokenString = req.headers.authorization?.replace("Bearer ", "");
-
   await AuthService.signOut(tokenString);
-
   res.status(204).end();
 }

@@ -9,3 +9,8 @@ export enum TokenActivity {
   RESET_PASSWORD = "RESET_PASSWORD",
   AUTHENTICATE = "AUTHENTICATE",
 }
+
+export enum Model {
+  POST = "post",
+  COMMENT = "comment",
+}

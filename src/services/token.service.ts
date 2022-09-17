@@ -1,5 +1,5 @@
 import { Token, Prisma } from "@prisma/client";
-import { sign, verify } from "jsonwebtoken";
+import { sign } from "jsonwebtoken";
 import createHttpError, { NotFound } from "http-errors";
 import { prisma } from "../prisma";
 import { TokenDto } from "../dtos/auth/response/token.dto";
@@ -16,8 +16,8 @@ export class TokenService {
     const exp = iat + parseInt(expirationMinutes) * 60 * 1000;
 
     const sub = (await this.createTokenRecord(userId, activity)).sub;
-    const token = sign({ sub, iat, exp }, secret);
 
+    const token = sign({ sub, iat, exp }, secret);
     return { token, expiration: new Date(exp).toUTCString() };
   }
 
@@ -53,7 +53,6 @@ export class TokenService {
             throw error;
         }
       }
-
       throw error;
     }
   }

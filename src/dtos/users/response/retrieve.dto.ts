@@ -17,4 +17,7 @@ export class RetrieveUserDto extends BaseDto {
 
   @Expose()
   readonly configurations!: { name_public: boolean; email_public: boolean };
+
+  @Expose()
+  readonly confirmed_at!: Date;
 }
