@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { plainToInstance } from "class-transformer";
 import { NotFound, Unauthorized } from "http-errors";
 import { RetrieveCommentDto } from "../dtos/comments/response/retrieve.dto";
@@ -36,6 +35,7 @@ export class CrudService {
 
   static async create({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newRecord = await (useModel as any).create({
       data: {
         ...args.data,
@@ -47,7 +47,8 @@ export class CrudService {
 
   static async retrieve({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-    const postRetrieved = await (useModel as any).findUnique({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const recordRetrieved = await (useModel as any).findUnique({
       where: {
         uuid: args.uuid,
       },
@@ -56,15 +57,24 @@ export class CrudService {
       },
     });
 
-    if (!postRetrieved) {
+    if (!recordRetrieved) {
       throw new NotFound();
     }
 
-    return plainToInstance(retrieveDto, postRetrieved);
+    recordRetrieved.comments = await prisma.comment.findMany({
+      where: {
+        post_id: args.uuid,
+        deleted_at: null,
+        draft: false,
+      },
+    });
+
+    return plainToInstance(retrieveDto, recordRetrieved);
   }
 
   static async own({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const author = await (useModel as any).findUnique({
       where: { uuid: args.uuid },
       select: { user_id: true },
@@ -81,6 +91,7 @@ export class CrudService {
 
   static async update({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updated = await (useModel as any).update({
       where: {
         uuid: args.uuid,
@@ -94,7 +105,8 @@ export class CrudService {
 
   static async deleteIt({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-    const deletedPost = await (useModel as any).update({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const deletedRecord = await (useModel as any).update({
       where: {
         uuid: args.uuid,
       },
@@ -102,11 +114,12 @@ export class CrudService {
         deleted_at: new Date(),
       },
     });
-    return plainToInstance(retrieveDto, deletedPost);
+    return plainToInstance(retrieveDto, deletedRecord);
   }
 
   static async like({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const likeUser = await (useModel as any).findUnique({
       where: {
         uuid: args.uuid,
@@ -125,6 +138,7 @@ export class CrudService {
     }
 
     if (likeUser.likes.length) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (useModel as any).update({
         where: {
           uuid: args.uuid,
@@ -141,6 +155,7 @@ export class CrudService {
         },
       });
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (useModel as any).update({
         where: {
           uuid: args.uuid,
@@ -161,6 +176,7 @@ export class CrudService {
 
   static async likes({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const users = await (useModel as any).findUnique({
       where: {
         uuid: args.uuid,
@@ -175,6 +191,7 @@ export class CrudService {
     }
 
     if (users.likes.length) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return users.likes.map((user: any) =>
         plainToInstance(RetrieveUserDto, user)
       );

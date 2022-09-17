@@ -16,6 +16,7 @@ export class PostsService {
         comments: {
           where: {
             deleted_at: null,
+            draft: false,
           },
         },
       },
@@ -48,7 +49,12 @@ export class PostsService {
         uuid: postId,
       },
       select: {
-        comments: true,
+        comments: {
+          where: {
+            deleted_at: null,
+            draft: false,
+          },
+        },
       },
     });
 

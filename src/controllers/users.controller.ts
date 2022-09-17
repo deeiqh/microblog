@@ -36,6 +36,7 @@ export async function retrieveMyPosts(
 ): Promise<void> {
   const userId = req.user as string;
   const userPosts = await UsersService.retrieveMyPosts(userId);
+  console.log(userPosts);
   res.status(200).json(userPosts);
 }
 

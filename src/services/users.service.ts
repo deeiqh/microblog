@@ -144,12 +144,7 @@ export class UsersService {
         user_id: userId,
       },
       include: {
-        comments: {
-          where: {
-            deleted_at: null,
-            draft: false,
-          },
-        },
+        comments: true,
       },
     });
     return posts.map((post) => plainToInstance(RetrievePostDto, post));
