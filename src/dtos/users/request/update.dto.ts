@@ -10,8 +10,5 @@ export class UpdateUserDto extends BaseDto {
   readonly last_name!: string;
 
   @Expose()
-  readonly email!: string;
-
-  @Expose()
   readonly configurations!: { name_public: boolean; email_public: boolean };
 }
