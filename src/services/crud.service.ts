@@ -39,7 +39,7 @@ export class CrudService {
     const newRecord = await (useModel as any).create({
       data: {
         ...args.data,
-        user_id: args.uuid,
+        user_id: args.userId,
       },
     });
     return plainToInstance(retrieveDto, newRecord);

@@ -29,9 +29,9 @@ export async function confirmUserEmailEvent({
         })}</strong>`,
       });
     } catch (error) {
-      console.error("Send email error\n", error);
+      console.error("Send email error", error);
     }
   } catch (error) {
-    console.error("Generate token error\n", error);
+    console.error("Generate token error", error);
   }
 }
