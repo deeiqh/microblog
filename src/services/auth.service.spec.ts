@@ -125,7 +125,7 @@ describe("AuthService", () => {
 
       await expect(
         TokenService.createTokenRecord(user.uuid, TokenActivity.AUTHENTICATE)
-      ).rejects.toThrowError(createHttpError(403, "Forbidden. Sign out first"));
+      ).rejects.toThrowError(createHttpError(403, "Forbidden. Signed out"));
     });
 
     it("should thrown an error if user has previous token to confirm email", async () => {
@@ -152,7 +152,7 @@ describe("AuthService", () => {
     it("should throw error if invalid token", async () => {
       const token = faker.datatype.string();
       await expect(AuthService.signOut(token)).rejects.toThrowError(
-        new PreconditionFailed("Already signed out")
+        new PreconditionFailed("Signed out")
       );
     });
 

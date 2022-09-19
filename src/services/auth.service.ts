@@ -74,7 +74,7 @@ export class AuthService {
         },
       });
     } catch (error) {
-      throw new PreconditionFailed("Already signed out");
+      throw new PreconditionFailed("Signed out");
     }
   }
 }

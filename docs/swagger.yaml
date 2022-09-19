@@ -104,53 +104,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /auth/reset-password:
-    post:
-      summary: "Send an email to set a new password"
-      tags:
-        - "auth"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: "object"
-              required:
-                - "email"
-              properties:
-                email:
-                  type: "string"
-      responses:
-        "204":
-          description: "Empty body"
-  /auth/set-password:
-    patch:
-      summary: "Update password"
-      tags:
-        - "auth"
-      parameters:
-        - name: "token"
-          description: "token to protect user"
-          in: "query"
-          required: true
-          schema:
-            type: "string"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: "object"
-              required:
-                - "password"
-              properties:
-                password:
-                  type: "string"
-      responses:
-        "204":
-          description: "Empty body"
-      security:
-        - bearerAuth: []
+
   /auth/sign-out:
     post:
       tags:
@@ -451,29 +405,7 @@ paths:
                 $ref: "#/components/schemas/Error"
       security:
         - bearerAuth: []
-  /posts/{postId}/report:
-    post:
-      summary: "Report a post to moderator"
-      tags:
-        - "posts"
-      parameters:
-        - $ref: "#/components/parameters/postId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: "object"
-              required:
-                - "message"
-              properties:
-                message:
-                  type: "string"
-      responses:
-        "204":
-          description: "Empty body"
-      security:
-        - bearerAuth: []
+
   /posts/{postId}/likes:
     get:
       summary: "Users that gave like to post"
@@ -618,29 +550,7 @@ paths:
           description: "Empty content"
       security:
         - bearerAuth: []
-  /comments/{commentId}/report:
-    post:
-      summary: "Report a comment to moderator"
-      tags:
-        - "comments"
-      parameters:
-        - $ref: "#/components/parameters/commentId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: "object"
-              required:
-                - "message"
-              properties:
-                message:
-                  type: "string"
-      responses:
-        "204":
-          description: "Empty body"
-      security:
-        - bearerAuth: []
+
   /comments/{commentId}/likes:
     get:
       summary: "Users that gave like to comment"

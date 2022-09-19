@@ -40,7 +40,15 @@ export class TokenService {
             throw new NotFound("User not found");
           case PrismaErrors.DUPLICATED: {
             if (activity === TokenActivity.AUTHENTICATE) {
-              throw createHttpError(403, "Forbidden. Sign out first");
+              await prisma.token.delete({
+                where: {
+                  user_id_activity: {
+                    user_id: userId,
+                    activity,
+                  },
+                },
+              });
+              throw createHttpError(403, "Forbidden. Signed out");
             }
             throw createHttpError(
               403,
