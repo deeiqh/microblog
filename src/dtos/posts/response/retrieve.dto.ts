@@ -8,33 +8,33 @@ export class RetrievePostDto {
   readonly uuid!: string;
 
   @Expose()
-  readonly title?: string;
+  readonly title!: string;
 
   @Expose()
-  readonly content?: string;
+  readonly content!: string;
 
   @Expose()
   readonly user_id!: string;
 
   @Expose()
-  readonly category?: string;
+  readonly category!: string;
 
   @Expose()
   readonly draft!: boolean;
 
   @Expose()
-  @Transform(({ value }) => value?.toUTCString())
+  @Transform(({ value }) => value?.toISOString())
   readonly updated_at!: Date;
 
   @Expose()
   @Type(() => RetrieveCommentDto)
-  readonly comments?: RetrieveCommentDto[];
+  readonly comments!: RetrieveCommentDto[];
 
   @Expose()
-  readonly likes_number?: number;
+  readonly likes_number!: number;
 
   @Expose()
-  @Transform(({ value }) => value?.toUTCString())
+  @Transform(({ value }) => value?.toISOString())
   readonly deleted_at!: Date;
 
   @Expose()

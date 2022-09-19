@@ -7,26 +7,26 @@ export class RetrieveCommentDto {
   readonly uuid!: string;
 
   @Expose()
-  readonly content?: string;
+  readonly content!: string;
 
   @Expose()
   readonly user_id!: string;
 
   @Expose()
-  readonly post_id?: string;
+  readonly post_id!: string;
 
   @Expose()
-  readonly likes_number?: number;
+  readonly likes_number!: number;
 
   @Expose()
-  @Transform(({ value }) => value?.toUTCString())
+  @Transform(({ value }) => value?.toISOString())
   readonly updated_at!: Date;
 
   @Expose()
   readonly draft!: boolean;
 
   @Expose()
-  @Transform(({ value }) => value?.toUTCString())
+  @Transform(({ value }) => value?.toISOString())
   readonly deleted_at!: Date;
 
   @Expose()

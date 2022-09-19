@@ -21,11 +21,11 @@ describe("AuthService", () => {
   let tokenFactory: TokenFactory;
 
   beforeAll(async () => {
-    userFactory = new UserFactory();
-    tokenFactory = new TokenFactory();
-
     await clearDatabase();
     await prisma.$disconnect();
+
+    userFactory = new UserFactory();
+    tokenFactory = new TokenFactory();
   });
 
   beforeEach(() => {
@@ -33,6 +33,17 @@ describe("AuthService", () => {
   });
 
   describe("register", () => {
+    let data: RegisterDto;
+
+    beforeEach(() => {
+      data = {
+        first_name: faker.name.firstName(),
+        last_name: faker.name.lastName(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+      } as RegisterDto;
+    });
+
     it("should throw error if email already registered", async () => {
       const data = await userFactory.make();
       await expect(
@@ -41,13 +52,6 @@ describe("AuthService", () => {
     });
 
     it("should return tokenDto if input data is ok", async () => {
-      const data = {
-        first_name: faker.name.firstName(),
-        last_name: faker.name.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      } as RegisterDto;
-
       const result = await AuthService.register(data);
 
       expect(result).toHaveProperty("token");
@@ -56,13 +60,6 @@ describe("AuthService", () => {
     it("should emit confirm email event", async () => {
       const emitter = jest.mock("eventemitter2");
 
-      const data = {
-        first_name: faker.name.firstName(),
-        last_name: faker.name.lastName(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-      } as RegisterDto;
-
       await AuthService.register(data);
 
       expect(emitter.mock.call.length).toBe(1);
@@ -70,23 +67,24 @@ describe("AuthService", () => {
   });
 
   describe("signIn", () => {
-    it("should throw an error if user not found", async () => {
-      const data = plainToInstance(SignInDto, {
+    let dataSignIn: SignInDto;
+
+    beforeEach(() => {
+      dataSignIn = plainToInstance(SignInDto, {
         email: faker.internet.email(),
         password: faker.internet.password(),
       });
-      await expect(AuthService.signIn(data)).rejects.toThrowError(
+    });
+
+    it("should throw an error if user not found", async () => {
+      await expect(AuthService.signIn(dataSignIn)).rejects.toThrowError(
         new Unauthorized("User not found")
       );
     });
 
     it("should throw an error if incorrect password", async () => {
       const { email } = await userFactory.make();
-
-      const dataSignIn = plainToInstance(SignInDto, {
-        email,
-        password: faker.internet.password(),
-      });
+      dataSignIn = { ...dataSignIn, email } as SignInDto;
 
       await expect(AuthService.signIn(dataSignIn)).rejects.toThrowError(
         new Unauthorized("Invalid password")
@@ -96,9 +94,9 @@ describe("AuthService", () => {
     it("should create authorization token", async () => {
       const password = faker.internet.password();
       const { email } = await userFactory.make({ password });
-      const dataSignIn = plainToInstance(SignInDto, {
-        email,
+      dataSignIn = plainToInstance(SignInDto, {
         password,
+        email,
       });
 
       await expect(AuthService.signIn(dataSignIn)).resolves.toHaveProperty(

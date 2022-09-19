@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { plainToInstance } from "class-transformer";
 import { NotFound, Unauthorized } from "http-errors";
 import { RetrieveCommentDto } from "../dtos/comments/response/retrieve.dto";
@@ -35,19 +36,17 @@ export class CrudService {
 
   static async create({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newRecord = await (useModel as any).create({
       data: {
         ...args.data,
         user_id: args.userId,
       },
     });
-    return plainToInstance(retrieveDto, newRecord);
+    return plainToInstance(retrieveDto as any, newRecord);
   }
 
   static async retrieve({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const recordRetrieved = await (useModel as any).findUnique({
       where: {
         uuid: args.uuid,
@@ -69,29 +68,27 @@ export class CrudService {
       },
     });
 
-    return plainToInstance(retrieveDto, recordRetrieved);
+    return plainToInstance(retrieveDto as any, recordRetrieved);
   }
 
   static async own({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const author = await (useModel as any).findUnique({
+    const model = await (useModel as any).findUnique({
       where: { uuid: args.uuid },
       select: { user_id: true },
     });
 
-    if (!author) {
+    if (!model) {
       throw new NotFound();
     }
 
-    if (author.user_id !== args.userId) {
+    if (model.user_id !== args.userId) {
       throw new Unauthorized("Not owner");
     }
   }
 
   static async update({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updated = await (useModel as any).update({
       where: {
         uuid: args.uuid,
@@ -100,12 +97,11 @@ export class CrudService {
         ...args.data,
       },
     });
-    return plainToInstance(retrieveDto, updated);
+    return plainToInstance(retrieveDto as any, updated);
   }
 
   static async deleteIt({ ...args }: CrudInput): CrudOutput {
     const { useModel, retrieveDto } = CrudService.which(args);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const deletedRecord = await (useModel as any).update({
       where: {
         uuid: args.uuid,
@@ -114,12 +110,11 @@ export class CrudService {
         deleted_at: new Date(),
       },
     });
-    return plainToInstance(retrieveDto, deletedRecord);
+    return plainToInstance(retrieveDto as any, deletedRecord);
   }
 
   static async like({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const likeUser = await (useModel as any).findUnique({
       where: {
         uuid: args.uuid,
@@ -134,11 +129,10 @@ export class CrudService {
     });
 
     if (!likeUser) {
-      throw new NotFound("Post not found");
+      throw new NotFound("Model not found");
     }
 
     if (likeUser.likes.length) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (useModel as any).update({
         where: {
           uuid: args.uuid,
@@ -155,7 +149,6 @@ export class CrudService {
         },
       });
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (useModel as any).update({
         where: {
           uuid: args.uuid,
@@ -176,7 +169,6 @@ export class CrudService {
 
   static async likes({ ...args }: CrudInput): CrudOutput {
     const { useModel } = CrudService.which(args);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const users = await (useModel as any).findUnique({
       where: {
         uuid: args.uuid,
@@ -191,7 +183,6 @@ export class CrudService {
     }
 
     if (users.likes.length) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return users.likes.map((user: any) =>
         plainToInstance(RetrieveUserDto, user)
       );

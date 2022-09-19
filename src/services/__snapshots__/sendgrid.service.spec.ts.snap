@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SendgridService sendEmail should send an email 1`] = `
+[
+  {
+    "body": "",
+    "headers": {},
+    "statusCode": 200,
+  },
+]
+`;

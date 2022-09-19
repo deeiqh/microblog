@@ -1,6 +1,9 @@
 {
   "name": "microblog",
   "version": "1.0.0",
+  "engines": {
+    "node": "16.17.0"
+  },
   "description": "",
   "directories": {
     "doc": "docs"
@@ -11,7 +14,7 @@
     "start": "node --require dotenv/config dist/server.js",
     "build": "tsc",
     "lint-staged": "lint-staged",
-    "test": "jest dist",
+    "test": "jest dist --watchAll",
     "format": "prettier --write src",
     "lint": "eslint src"
   },
